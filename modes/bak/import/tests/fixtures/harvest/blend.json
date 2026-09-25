@@ -1,0 +1,931 @@
+{
+ "source": "DRONEAID_model_latest.blend",
+ "blender": "5.2.2 LTS",
+ "scale": 0.05,
+ "origin": "Frame_Star",
+ "units": "metres, Y-up, quaternion xyzw",
+ "parts": [
+  {
+   "object": "Frame_Star",
+   "file": "Frame_Star.glb",
+   "collection": "Drone",
+   "verts": 306,
+   "tris": 624,
+   "bbox": [
+    0.12195,
+    0.002,
+    0.0969
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 32944,
+   "translation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Frame_Top",
+   "file": "Frame_Top.glb",
+   "collection": "Drone",
+   "verts": 776,
+   "tris": 1584,
+   "bbox": [
+    0.28225,
+    0.002,
+    0.04483
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 61428,
+   "translation": [
+    -0.03234,
+    0.03936,
+    0.00074
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Frame_Bottom",
+   "file": "Frame_Bottom.glb",
+   "collection": "Drone",
+   "verts": 1060,
+   "tris": 2160,
+   "bbox": [
+    0.28225,
+    0.002,
+    0.09699
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 81272,
+   "translation": [
+    0.00531,
+    0.00972,
+    0.00069
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Motor_Arm1",
+   "file": "Motor_Arm1.glb",
+   "collection": "Drone",
+   "verts": 42,
+   "tris": 80,
+   "bbox": [
+    0.04134,
+    0.0075,
+    0.20863
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [],
+   "mirrored": [
+    "x",
+    "y"
+   ],
+   "bytes": 5224,
+   "translation": [
+    0.08812,
+    0.00214,
+    0.08234
+   ],
+   "rotation": [
+    0,
+    -0.94831,
+    0,
+    0.31733
+   ]
+  },
+  {
+   "object": "Motor_Arm2",
+   "file": "Motor_Arm2.glb",
+   "collection": "Drone",
+   "verts": 42,
+   "tris": 80,
+   "bbox": [
+    0.04134,
+    0.0075,
+    0.20863
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [],
+   "mirrored": [
+    "x"
+   ],
+   "bytes": 5224,
+   "translation": [
+    0.08812,
+    0.00214,
+    -0.08299
+   ],
+   "rotation": [
+    0.94831,
+    0,
+    0.31733,
+    0
+   ]
+  },
+  {
+   "object": "Motor_Arm0",
+   "file": "Motor_Arm0.glb",
+   "collection": "Drone",
+   "verts": 42,
+   "tris": 80,
+   "bbox": [
+    0.04134,
+    0.0075,
+    0.20863
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [],
+   "mirrored": [
+    "y"
+   ],
+   "bytes": 5224,
+   "translation": [
+    -0.0887,
+    0.00214,
+    0.08234
+   ],
+   "rotation": [
+    0.31733,
+    0,
+    -0.94831,
+    0
+   ]
+  },
+  {
+   "object": "Motor_Arm3",
+   "file": "Motor_Arm3.glb",
+   "collection": "Drone",
+   "verts": 42,
+   "tris": 80,
+   "bbox": [
+    0.04134,
+    0.0075,
+    0.20863
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 5224,
+   "translation": [
+    -0.0887,
+    0.00214,
+    -0.08299
+   ],
+   "rotation": [
+    0,
+    0.31733,
+    0,
+    0.94831
+   ]
+  },
+  {
+   "object": "FrameSpacers.00 (x4)",
+   "file": "FrameSpacers_00_x4.glb",
+   "collection": "Drone",
+   "verts": 256,
+   "tris": 496,
+   "bbox": [
+    0.0979,
+    0.02723,
+    0.03146
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 20872,
+   "translation": [
+    0.0,
+    0.02554,
+    0.0
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "FrameSpacers.01",
+   "file": "FrameSpacers_01.glb",
+   "collection": "Drone",
+   "verts": 64,
+   "tris": 124,
+   "bbox": [
+    0.00515,
+    0.02668,
+    0.00515
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 6156,
+   "translation": [
+    -0.13848,
+    0.01504,
+    0.01038
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "FrameSpacers.02",
+   "file": "FrameSpacers_02.glb",
+   "collection": "Drone",
+   "verts": 64,
+   "tris": 124,
+   "bbox": [
+    0.00515,
+    0.02668,
+    0.00515
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 6156,
+   "translation": [
+    -0.13848,
+    0.01504,
+    -0.00942
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Computer",
+   "file": "Computer.glb",
+   "collection": "Components",
+   "verts": 18,
+   "tris": 32,
+   "bbox": [
+    0.04173,
+    0.01099,
+    0.02295
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 3284,
+   "translation": [
+    -0.08688,
+    0.01782,
+    0.0008
+   ],
+   "rotation": [
+    0,
+    1,
+    0,
+    0.0
+   ]
+  },
+  {
+   "object": "FlightController00",
+   "file": "FlightController00.glb",
+   "collection": "Controller",
+   "verts": 48,
+   "tris": 92,
+   "bbox": [
+    0.0303,
+    0.00094,
+    0.0303
+   ],
+   "materials": [
+    "Material"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 6416,
+   "translation": [
+    0.00195,
+    0.0168,
+    0.0008
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "FlightController01",
+   "file": "FlightController01.glb",
+   "collection": "Controller",
+   "verts": 48,
+   "tris": 92,
+   "bbox": [
+    0.0303,
+    0.00094,
+    0.0303
+   ],
+   "materials": [
+    "Material"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 6416,
+   "translation": [
+    0.00195,
+    0.0236,
+    0.0008
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "FlightControlSeparators (x8)",
+   "file": "FlightControlSeparators_x8.glb",
+   "collection": "Controller",
+   "verts": 256,
+   "tris": 496,
+   "bbox": [
+    0.02705,
+    0.01372,
+    0.0287
+   ],
+   "materials": [
+    "Material.003"
+   ],
+   "modifiers": [
+    "MIRROR",
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 20884,
+   "translation": [
+    0.00195,
+    0.0236,
+    0.0008
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "AntennaFixture00",
+   "file": "AntennaFixture00.glb",
+   "collection": "Antenna",
+   "verts": 376,
+   "tris": 756,
+   "bbox": [
+    0.01574,
+    0.01407,
+    0.01203
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 30116,
+   "translation": [
+    -0.13848,
+    0.04182,
+    0.01038
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "AntennaFixture02",
+   "file": "AntennaFixture02.glb",
+   "collection": "Antenna",
+   "verts": 48,
+   "tris": 92,
+   "bbox": [
+    0.01862,
+    0.01861,
+    0.00988
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [],
+   "mirrored": [],
+   "bytes": 7056,
+   "translation": [
+    -0.14197,
+    0.0219,
+    0.00063
+   ],
+   "rotation": [
+    -0.27402,
+    0.65186,
+    0.27402,
+    0.65186
+   ]
+  },
+  {
+   "object": "Antenna.00",
+   "file": "Antenna_00.glb",
+   "collection": "Antenna",
+   "verts": 192,
+   "tris": 380,
+   "bbox": [
+    0.00263,
+    0.05998,
+    0.00263
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 11916,
+   "translation": [
+    -0.14898,
+    0.03746,
+    0.01726
+   ],
+   "rotation": [
+    0,
+    0.70711,
+    0,
+    0.70711
+   ]
+  },
+  {
+   "object": "Antenna.01",
+   "file": "Antenna_01.glb",
+   "collection": "Antenna",
+   "verts": 320,
+   "tris": 632,
+   "bbox": [
+    0.00256,
+    0.05853,
+    0.01529
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 21816,
+   "translation": [
+    -0.15283,
+    0.01472,
+    0.00078
+   ],
+   "rotation": [
+    -0.5,
+    0.5,
+    -0.5,
+    0.5
+   ]
+  },
+  {
+   "object": "Antenna.02",
+   "file": "Antenna_02.glb",
+   "collection": "Antenna",
+   "verts": 224,
+   "tris": 444,
+   "bbox": [
+    0.01157,
+    0.06718,
+    0.01157
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 15472,
+   "translation": [
+    -0.18337,
+    0.0647,
+    0.00063
+   ],
+   "rotation": [
+    0,
+    0,
+    0.37127,
+    0.92853
+   ]
+  },
+  {
+   "object": "CamHolder0",
+   "file": "CamHolder0.glb",
+   "collection": "Camera",
+   "verts": 54,
+   "tris": 104,
+   "bbox": [
+    0.01733,
+    0.0274,
+    0.01178
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [
+    "y"
+   ],
+   "bytes": 5840,
+   "translation": [
+    0.13149,
+    0.01574,
+    -0.01731
+   ],
+   "rotation": [
+    0,
+    0,
+    -1,
+    0
+   ]
+  },
+  {
+   "object": "CamHolder1",
+   "file": "CamHolder1.glb",
+   "collection": "Camera",
+   "verts": 54,
+   "tris": 104,
+   "bbox": [
+    0.01733,
+    0.0274,
+    0.01178
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 5840,
+   "translation": [
+    0.13149,
+    0.01574,
+    0.01834
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Camera",
+   "file": "Camera.glb",
+   "collection": "Camera",
+   "verts": 224,
+   "tris": 440,
+   "bbox": [
+    0.0244,
+    0.01906,
+    0.01906
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 16816,
+   "translation": [
+    -0.42305,
+    0.00214,
+    -0.42188
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Propeller0",
+   "file": "Propeller0.glb",
+   "collection": "Motor",
+   "verts": 7274,
+   "tris": 14548,
+   "bbox": [
+    0.17347,
+    0.00989,
+    0.20031
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 306760,
+   "translation": [
+    -0.13914,
+    0.04262,
+    0.15765
+   ],
+   "rotation": [
+    0.66179,
+    0,
+    0.74969,
+    0.0
+   ]
+  },
+  {
+   "object": "Propeller1",
+   "file": "Propeller1.glb",
+   "collection": "Motor",
+   "verts": 7274,
+   "tris": 14548,
+   "bbox": [
+    0.17347,
+    0.00989,
+    0.20031
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 306760,
+   "translation": [
+    0.14017,
+    0.04177,
+    0.1576
+   ],
+   "rotation": [
+    0.90317,
+    0,
+    0.42928,
+    0.0
+   ]
+  },
+  {
+   "object": "Propeller2",
+   "file": "Propeller2.glb",
+   "collection": "Motor",
+   "verts": 7274,
+   "tris": 14548,
+   "bbox": [
+    0.17347,
+    0.00989,
+    0.20031
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 306760,
+   "translation": [
+    0.1381,
+    0.04262,
+    -0.1569
+   ],
+   "rotation": [
+    0.66179,
+    0,
+    0.74969,
+    0.0
+   ]
+  },
+  {
+   "object": "Propeller3",
+   "file": "Propeller3.glb",
+   "collection": "Motor",
+   "verts": 7274,
+   "tris": 14548,
+   "bbox": [
+    0.17347,
+    0.00989,
+    0.20031
+   ],
+   "materials": [
+    "Material.002"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 306760,
+   "translation": [
+    -0.13914,
+    0.04262,
+    -0.1569
+   ],
+   "rotation": [
+    0.66179,
+    0,
+    0.74969,
+    0.0
+   ]
+  },
+  {
+   "object": "Motor0",
+   "file": "Motor0.glb",
+   "collection": "Motor",
+   "verts": 416,
+   "tris": 828,
+   "bbox": [
+    0.0349,
+    0.03624,
+    0.0349
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 34960,
+   "translation": [
+    -0.1395,
+    0.01991,
+    0.15787
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Motor1",
+   "file": "Motor1.glb",
+   "collection": "Motor",
+   "verts": 416,
+   "tris": 828,
+   "bbox": [
+    0.0349,
+    0.03624,
+    0.0349
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 34960,
+   "translation": [
+    0.14003,
+    0.01991,
+    0.15787
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Motor2",
+   "file": "Motor2.glb",
+   "collection": "Motor",
+   "verts": 416,
+   "tris": 828,
+   "bbox": [
+    0.0349,
+    0.03624,
+    0.0349
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 34960,
+   "translation": [
+    0.13774,
+    0.01991,
+    -0.15668
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "object": "Motor3",
+   "file": "Motor3.glb",
+   "collection": "Motor",
+   "verts": 416,
+   "tris": 828,
+   "bbox": [
+    0.0349,
+    0.03624,
+    0.0349
+   ],
+   "materials": [
+    "Material.001"
+   ],
+   "modifiers": [
+    "NODES"
+   ],
+   "mirrored": [],
+   "bytes": 34960,
+   "translation": [
+    -0.1395,
+    0.01991,
+    -0.15668
+   ],
+   "rotation": [
+    0,
+    0,
+    0,
+    1
+   ]
+  }
+ ]
+}
