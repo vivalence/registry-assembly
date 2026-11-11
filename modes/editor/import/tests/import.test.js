@@ -123,9 +123,9 @@ describe("the importer over the assembly rig", () => {
     importer = rig.entities.mode.create({ type: "editor", slug: "import", name: "Import", traits: [], installed: "", version: "0.1.0" });
     await rig.em.flush();
     const held = { id: importer.id, entity: importer, mountpoint: { absolute: root }, freight: null };
-    bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+    bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
     call = (path, input, request) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {}, ...(request && { request }) });
-    ctx = { ...shard.context.lift(contexts.host, rig.daemon), mode: held, user: null, thread: null };
+    ctx = { ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, user: null, thread: null };
   });
   afterAll(async () => {
     await rig?.close();

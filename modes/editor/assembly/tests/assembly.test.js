@@ -78,9 +78,9 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
     thread = rig.em.create(sets.userspace.thread.entity, { user: user.id, mode: editor.id, phase: "manual", traits: [], trait: {} });
     await rig.em.flush();
     held = { id: editor.id, entity: editor, mountpoint: null, freight: null };
-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
   });
   afterAll(async () => rig?.close());
@@ -189,7 +189,7 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
 
     const probe = new Vector().graft(harness);
     probe.branch("/dialogue").open("/probe", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
-    const told = await steer.dispatch.invoke(probe, "/dialogue/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
+    const told = await steer.dispatch.invoke(probe, "/dialogue/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
     expect(Object.keys(told)).toEqual(["role", "ontology", "vocabulary", "format", "screen"]);
     expect(told.ontology).toContain("[Ontology] kind — layer rule · its traits; then each trait, whose fields the assembly_* tools take\npart — ");
     expect(told.vocabulary).toContain("[Vocabulary] family: the symbols a symbols field takes\njoint: joint.");

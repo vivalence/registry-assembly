@@ -23,6 +23,7 @@ export const scripted = (script) => {
   const seen = [];
   const cortex = new Cortex().register([{
     type: "dialogue",
+    id: "dialogue-1",
     tune: [0.5, 0.5, 0.5],
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use", "object"] },
     via: {
@@ -39,18 +40,18 @@ export const assemble = ({ daemon, mode, thread, harness, tools }) => {
   const armed = new Vector();
   if (tools) armed.graft(tools);
   if (daemon.domain?.tools) armed.branch(daemon.domain.manifest.slug, daemon.domain.tools);
-  armed.use(shard.context.spread(contexts.host, daemon));
+  armed.use(shard.context.spread(contexts.daemonDie, daemon));
   armed.use(shard.context.bind("mode", mode));
   if (thread) armed.use(shard.context.bind("thread", thread.id));
 
   const vector = new Vector()
-    .use(shard.context.spread(contexts.host, daemon))
+    .use(shard.context.spread(contexts.daemonDie, daemon))
     .use(shard.context.bind("mode", mode))
     .use(async (ctx, next) => {
       ctx.input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {});
       ctx.thread = thread ?? null;
-      const { system, turns, output, tune } = ctx.input;
-      ctx.hallucination = { controller: new Controller(), policy: { ...(tune && { tune }) }, primer: Object.entries(system ?? {}).reduce((primer, [nature, text]) => primer.open(nature, text), new Vector()), turns: turns ?? [], tools: armed, ...(output && { output: { schema: output } }) };
+      const { system, turns, output, tier } = ctx.input;
+      ctx.hallucination = { controller: new Controller(), policy: { ...(tier && { tier }) }, primer: Object.entries(system ?? {}).reduce((primer, [nature, text]) => primer.open(nature, text), new Vector()), turns: turns ?? [], tools: armed, ...(output && { output: { schema: output } }) };
       await next();
     })
     .graft(harness);

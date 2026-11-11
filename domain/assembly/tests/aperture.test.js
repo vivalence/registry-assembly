@@ -38,7 +38,7 @@ describe("the aperture — the repository's verbs over the daemon, direct and ov
   });
 
   it("P-slug-unique: the same slug from another caller is the same literal, its annotation unchanged; an unknown slug is refused by name", async () => {
-    const same = await steer.dispatch.invoke(rig.daemon.domain.aperture, "/part", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: rig.modes.part.id }, input: { slug: "plate", qty: 2 } });
+    const same = await steer.dispatch.invoke(rig.daemon.domain.aperture, "/part", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: rig.modes.part.id }, input: { slug: "plate", qty: 2 } });
     expect(same.mode.id).toBe(rig.mode.id);
     expect(same.trait.COUNTED.qty).toBe(2);
     await expect(rig.call("/placement", { layer: "nowhere", name: "plate", ref: "plate" })).rejects.toThrow(/no literal named "nowhere"/);

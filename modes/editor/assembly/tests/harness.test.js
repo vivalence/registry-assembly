@@ -36,7 +36,7 @@ describe("the harness over the assembly rig — what the model is handed", { san
   const probe = (avenue) => {
     const vector = new Vector().graft(harness);
     vector.branch(avenue).open("/probe", async (ctx) => ({ ...ctx.hallucination, system: await shape.primer.load(ctx.hallucination.primer, ctx) }));
-    return steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: held, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
+    return steer.dispatch.invoke(vector, `${avenue}/probe`, steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, thread, hallucination: { policy: {}, primer: new Vector() }, input: {} });
   };
 
   it("P-sections: the stable sections at the root, the screen last and on the dialogue only — an object render never sees it", async () => {
@@ -77,8 +77,8 @@ describe("the harness over the assembly rig — what the model is handed", { san
     expect(policy).toEqual({});
     expect(settings).toBeUndefined();
     const vector = new Vector().graft(harness).open("/probe", (ctx) => ctx.hallucination.policy);
-    const dialed = await steer.dispatch.invoke(vector, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: held, thread, hallucination: { policy: { tune: "capable", rounds: 2 }, primer: new Vector() }, input: {} });
-    expect(dialed).toEqual({ tune: "capable", rounds: 2 });
+    const dialed = await steer.dispatch.invoke(vector, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: held, thread, hallucination: { policy: { tier: "capable", rounds: 2 }, primer: new Vector() }, input: {} });
+    expect(dialed).toEqual({ tier: "capable", rounds: 2 });
   });
 
   it("P-named: every tool the role names is armed under that name, and the role names no assembly_* tool that is not", async () => {

@@ -77,9 +77,9 @@ describe("the player over the assembly rig", { sanitizeResources: false, sanitiz
     thread = rig.em.create(sets.userspace.thread.entity, { user: user.id, mode: player.id, phase: "manual", traits: [], trait: {} });
     await rig.em.flush();
     const held = { id: player.id, entity: player, mountpoint: null, freight: null };
-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
 
     await rig.call("/part", { slug: "plate", name: "Plate", modeled: { file: "parts/plate.glb" }, qty: 1, symbols: ["material.carbon"] });
@@ -178,9 +178,9 @@ describe("the player over the assembly rig", { sanitizeResources: false, sanitiz
     expect(answered(seen[1].turns)[0].output.message).toContain("! Tip: Top side up.");
 
     const probe = new Vector().graft(harness).open("/probe", (ctx) => ({ policy: ctx.hallucination.policy, settings: ctx.hallucination.settings, keys: shape.primer.keys(ctx.hallucination.primer) }));
-    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: player.id, entity: player }, thread, hallucination, input: {} });
+    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: player.id, entity: player }, thread, hallucination, input: {} });
     expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "guide"] });
-    expect((await bench({ primer: new Vector(), policy: { tune: "fast", rounds: 1 } })).policy).toEqual({ tune: "fast", rounds: 1 });
+    expect((await bench({ primer: new Vector(), policy: { tier: "fast", rounds: 1 } })).policy).toEqual({ tier: "fast", rounds: 1 });
 
     seen.length = 0;
     await mentor.object.render({ turns: [userTurn("classify")], output: { type: "object" } }).catch(() => null);

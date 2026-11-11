@@ -51,9 +51,9 @@ describe("the guide editor over the assembly rig", { sanitizeResources: false, s
     thread = rig.em.create(sets.userspace.thread.entity, { user: user.id, mode: editor.id, phase: "manual", traits: [], trait: {} });
     await rig.em.flush();
     const held = { id: editor.id, entity: editor, mountpoint: null, freight: null };
-    const bound = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
+    const bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
     call = (path, input) => steer.dispatch.invoke(bound, path, steer.strategy.direct)({ input: input ?? {} });
-    const hands = new Vector().use(shard.context.spread(contexts.host, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
+    const hands = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).use(shard.context.bind("thread", thread)).graft(tools);
     armed = (path, input) => steer.dispatch.invoke(hands, path, steer.strategy.direct)({ input: input ?? {} });
 
     await rig.call("/part", { slug: "plate", name: "Plate", modeled: { file: "parts/plate.glb" }, qty: 1 });
@@ -166,9 +166,9 @@ describe("the guide editor over the assembly rig", { sanitizeResources: false, s
     expect(seen[0].system.screen).toBe("[Screen]\nOn the operator's screen: Build (build) · step 02 of 2, Legs (build.legs) · selected frame.plate.");
     expect(seen[0].settings).toBeUndefined();
     const probe = new Vector().graft(harness).open("/probe", (ctx) => ({ policy: ctx.hallucination.policy, settings: ctx.hallucination.settings, keys: shape.primer.keys(ctx.hallucination.primer) }));
-    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination, input: {} });
+    const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.daemonDie, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination, input: {} });
     expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "ontology", "guide"] });
-    expect((await bench({ primer: new Vector(), policy: { tune: "fast", rounds: 1 }, settings: { effort: "high" } })).policy).toEqual({ tune: "fast", rounds: 1 });
+    expect((await bench({ primer: new Vector(), policy: { tier: "fast", rounds: 1 }, settings: { effort: "high" } })).policy).toEqual({ tier: "fast", rounds: 1 });
     expect(seen[0].tools).toEqual(expect.arrayContaining(["step_read", "guide_read", "open", "select", "assembly_resolve", "assembly_step", "assembly_guide", "assembly_sequence", "assembly_rename", "assembly_duplicate"]));
     for (const name of ROLE.match(/\b(?:assembly_\w+|step_read|guide_read|open|select)\b/g)) expect(seen[0].tools).toContain(name);
     for (const name of ROLE.match(/\b[a-z]+_[a-z]+\b/g).filter((name) => !["shell_run", "buffer_update"].includes(name))) expect(seen[0].tools).toContain(name);

@@ -62,7 +62,7 @@ describe("the tools — an agent's hands, each calling its verb with the slugs i
   });
 
   it("P-no-mode: without a mode on the caller a mint still lands — under the topology that ships its ontology's root symbol", async () => {
-    const orphan = await rig.tools["/part"]({ ...shard.context.lift(contexts.host, rig.daemon), input: { slug: "loose", name: "Loose" } });
+    const orphan = await rig.tools["/part"]({ ...shard.context.lift(contexts.daemonDie, rig.daemon), input: { slug: "loose", name: "Loose" } });
     const mode = orphan.entities.literal[0].mode;
     expect(mode?.id ?? mode).toBe(rig.modes.part.id);
   });

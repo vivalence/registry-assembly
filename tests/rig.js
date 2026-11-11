@@ -30,13 +30,13 @@ export async function mount({ symbols = true, install = [] } = {}) {
   await em.flush();
 
   const modes = {};
-  for (const slug of TOPOLOGIES) modes[slug] = entities.mode.create({ type: "topology", slug, name: slug, traits: [], installed: "", version: "0.0.1" });
-  modes.model = entities.mode.create({ type: "topography", slug: "model", name: "model", traits: [], installed: "", version: "0.0.0" });
+  for (const slug of TOPOLOGIES) modes[slug] = entities.mode.create({ type: "topology", slug, name: slug, daemon: DAEMON, traits: [], installed: "", version: "0.0.1" });
+  modes.model = entities.mode.create({ type: "topography", slug: "model", name: "model", daemon: DAEMON, traits: [], installed: "", version: "0.0.0" });
   await em.flush();
   em.setFilterParams("user", { user: user.id });
 
-  if (symbols) for (const [slug, rows] of Object.entries(SYMBOLS)) for (const row of rows) entities.symbol.create({ slug: row.slug, mode: modes[slug], traits: row.traits, trait: row.trait });
-  for (const row of install) entities.symbol.create({ slug: row.slug, mode: modes.model, traits: row.traits, trait: row.trait });
+  if (symbols) for (const [slug, rows] of Object.entries(SYMBOLS)) for (const row of rows) entities.symbol.create({ slug: row.slug, mode: modes[slug], daemon: DAEMON, traits: row.traits, trait: row.trait });
+  for (const row of install) entities.symbol.create({ slug: row.slug, mode: modes.model, daemon: DAEMON, traits: row.traits, trait: row.trait });
   await em.flush();
   em.clear();
 
@@ -52,11 +52,11 @@ export async function mount({ symbols = true, install = [] } = {}) {
     modes: {},
     reference: new Path(`/daemon/${DAEMON}`),
   };
-  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.use(shard.context.spread(contexts.daemonDie, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(held));
   held.registerSubscriber(daemon.twitch);
-  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
-  domain.aperture.use(shard.context.spread(contexts.host, daemon));
+  daemon.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
+  domain.aperture.use(shard.context.spread(contexts.daemonDie, daemon));
   daemon.aperture.graft(domain.aperture);
   daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
   await domain.resolve?.(daemon);
@@ -65,7 +65,7 @@ export async function mount({ symbols = true, install = [] } = {}) {
   const conn = new Connection(new Url("http://assembly-rig"), shard.transmitter.inline(handler));
 
   const tools = shape.proxy(domain.tools, steer.strategy.direct);
-  const caller = () => ({ ...shard.context.lift(contexts.host, daemon), user, mode: { id: modes.model.id } });
+  const caller = () => ({ ...shard.context.lift(contexts.daemonDie, daemon), user, mode: { id: modes.model.id } });
   const call = (path, input) => steer.dispatch.invoke(domain.aperture, path, steer.strategy.direct)({ ...caller(), input });
   const invoke = (path, input) => tools[path]({ ...caller(), input });
 
