@@ -28,7 +28,7 @@ describe("the aperture — the repository's verbs over the daemon, direct and ov
     expect(again.id).toBe(frame.id);
     expect(again.trait.LABELED).toEqual({ name: "Frame", description: "the 10 inch frame" });
     const one = await rig.call("/step", { slug: "build.01", name: "Plate", lines: [{ text: "Lay the plate flat." }] });
-    const two = await rig.call("/step", { slug: "build.02", name: "Arm", lines: [{ text: "Place one arm." }], notes: [{ text: "Leave the bolt loose.", symbols: ["note.warning", "warn.loose"] }] });
+    const two = await rig.call("/step", { slug: "build.02", name: "Arm", lines: [{ text: "Place one arm." }], notes: [{ text: "Leave the bolt loose.", kind: "WARNING" }] });
     expect([one.ontology, two.ontology]).toEqual(["step", "step"]);
     expect(one.trait).toEqual({ LABELED: { name: "Plate" }, ASSEMBLED: { placements: [] }, INSTRUCTED: { lines: [{ text: "Lay the plate flat." }], images: [] }, ANNOTATED: { notes: [] } });
     const guide = await rig.call("/guide", { slug: "build", name: "Build", subject: "frame" });

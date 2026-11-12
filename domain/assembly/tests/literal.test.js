@@ -128,7 +128,7 @@ describe("the repository — the only writer, over a real datamap", { sanitizeRe
         name: "Plate",
         placements: [{ literal: "frame.plate", active: true }],
         lines: [{ text: "Lay the plate flat." }],
-        notes: [{ text: "Leave it loose.", symbols: ["note.warning", "warn.loose"] }],
+        notes: [{ text: "Leave it loose.", kind: "WARNING" }],
         staged: { explode: 0.2 },
         symbols: ["tool.hex_2_0"],
       },
@@ -140,7 +140,7 @@ describe("the repository — the only writer, over a real datamap", { sanitizeRe
     expect(s1.symbols.getItems().map((symbol) => symbol.slug).sort()).toEqual(["step", "tool.hex_2_0"]);
     await expect(rig.literal.step({ slug: "build.x", placements: [{ literal: "plate", active: true }] })).rejects.toThrow(/"plate" is a part — a step installs placements/);
     await expect(rig.literal.step({ slug: "build.x", placements: [{ literal: "frame.nothing", active: true }] })).rejects.toThrow(/no literal named "frame.nothing"/);
-    await expect(rig.literal.step({ slug: "build.x", notes: [{ text: "?", symbols: ["note.bogus"] }] })).rejects.toThrow(/no symbol "note.bogus"/);
+    await expect(rig.literal.step({ slug: "build.x", notes: [{ text: "?", kind: "BOGUS" }] })).rejects.toThrow();
     await expect(rig.literal.step({ slug: "plate", name: "no" })).rejects.toThrow(/"plate" is a part, not a step/);
     expect(await rig.literal.findOne({ slug: "build.x" })).toBe(null);
 
@@ -252,7 +252,7 @@ describe("identity — rename, move and duplicate give a literal a new slug, and
     await literal.placement({ layer: "frame", name: "bolt.0", parent: "arm.0", ref: "bolt", joins: ["arm.0"] });
     await literal.placement({ layer: "frame", name: "arm.1", ref: "arm", translation: [-0.1, 0, 0] });
     await literal.step({ slug: "build.01", name: "First arm", placements: [{ literal: "frame.arm.0", active: true }, { literal: "frame.arm.0.bolt.0", active: true }], lines: [{ text: "Seat the arm.", at: { literals: ["frame.arm.0"] } }] }, rig.mode);
-    await literal.step({ slug: "build.02", name: "Second arm", placements: [{ literal: "frame.arm.1", active: true }], staged: { built: { steps: ["build.01"], placements: [] }, tints: { "frame.arm.0": "warning" } } }, rig.mode);
+    await literal.step({ slug: "build.02", name: "Second arm", placements: [{ literal: "frame.arm.1", active: true }], staged: { built: { steps: ["build.01"], placements: [] }, placements: [{ literal: "frame.arm.0", colour: "warning" }] } }, rig.mode);
     await literal.guide({ slug: "build", name: "Build", subject: "frame", sections: [{ name: "Arms", steps: ["build.01", "build.02"] }] }, rig.mode);
     await literal.part({ slug: "rig", name: "Rig" }, rig.mode);
     await literal.placement({ layer: "rig", name: "frame.0", ref: "frame" });
@@ -274,7 +274,7 @@ describe("identity — rename, move and duplicate give a literal a new slug, and
     const first = await held("build.01");
     expect(first.ASSEMBLED.placements.map((one) => one.literal)).toEqual(["chassis.arm.0", "chassis.arm.0.bolt.0"]);
     expect(first.INSTRUCTED.lines[0].at.literals).toEqual(["chassis.arm.0"]);
-    expect((await held("build.02")).STAGED.tints).toEqual({ "chassis.arm.0": "warning" });
+    expect((await held("build.02")).STAGED.placements).toEqual([{ literal: "chassis.arm.0", colour: "warning" }]);
     expect((await rig.literal.named("build.01")).uses.getItems().map((row) => row.slug).sort()).toEqual(["chassis.arm.0", "chassis.arm.0.bolt.0"]);
     rig.em.clear();
     const after = await rig.literal.resolve(await rig.literal.named("rig"));
@@ -305,7 +305,7 @@ describe("identity — rename, move and duplicate give a literal a new slug, and
     const first = await held("build.first");
     expect(first.ASSEMBLED.placements.map((one) => one.literal)).toEqual(["chassis.arm.front", "chassis.arm.front.bolt.0"]);
     expect(first.INSTRUCTED.lines[0].at.literals).toEqual(["chassis.arm.front"]);
-    expect((await held("build.02")).STAGED.tints).toEqual({ "chassis.arm.front": "warning" });
+    expect((await held("build.02")).STAGED.placements).toEqual([{ literal: "chassis.arm.front", colour: "warning" }]);
     rig.em.clear();
     const folded = await rig.literal.resolve(await rig.literal.named("build"));
     expect(folded.placements.map((one) => [one.path, one.at])).toEqual([["arm.front", 0], ["arm.front/bolt.0", 0], ["arm.left", 1]]);

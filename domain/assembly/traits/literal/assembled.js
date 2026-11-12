@@ -13,8 +13,6 @@ export const ASSEMBLED = traits.define("ASSEMBLED", {
       }
       if (notes || !held) (carried.push("ANNOTATED"), (trait.ANNOTATED = { notes: notes ?? held?.trait?.ANNOTATED?.notes ?? [] }));
       if (staged) (carried.push("STAGED"), (trait.STAGED = staged));
-      const kinds = (trait.ANNOTATED?.notes ?? []).flatMap((note) => note.symbols ?? []);
-      if (kinds.length) await this.symbolsNamed(kinds);
       const slugs = mentions({ ontology: kind, trait: { ...held?.trait, ...trait } });
       const found = slugs.length ? await this.find({ slug: { $in: slugs } }) : [];
       const lost = slugs.filter((slug) => !found.some((one) => one.slug === slug));

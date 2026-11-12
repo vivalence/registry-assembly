@@ -19,14 +19,17 @@ const QUAT = v.array(v.number(), { minItems: 4, maxItems: 4 });
 //   traits  the traits a literal of this ontology may carry — mint refuses any other
 //   layer   placements may name it as their layer — a part's own; a step is not a layer
 export const ONTOLOGIES = {
-  part: { traits: ["LABELED", "SOURCED", "MODELED", "PARAMETRIC", "COUNTED"], layer: true },
-  placement: { traits: ["LABELED", "PLACED", "JOINED"], layer: false },
+  part: { traits: ["LABELED", "SOURCED", "MODELED", "PARAMETRIC", "COUNTED", "STAGED"], layer: true },
+  placement: { traits: ["LABELED", "PLACED", "JOINED", "STAGED"], layer: false },
   step: { traits: ["LABELED", "ASSEMBLED", "INSTRUCTED", "ANNOTATED", "STAGED"], layer: false },
   guide: { traits: ["LABELED", "SEQUENCED", "INSTRUCTED", "ANNOTATED", "STAGED"], layer: false },
 };
 
 // a tint is a theme role, never a colour — the stage maps it to the theme's token
 export const TINTS = ["info", "success", "warning", "danger", "accent", "contrast"];
+export const CALLOUTS = ["TIP", "WARNING", "ORIENTATION", "LENGTH", "WIRES", "LOOSE", "TIGHT", "MAGNET", "FORCE"];
+export const SHOWN = ["solid", "ghost", "hidden"];
+export const COLOUR = v.union([v.enum(TINTS), v.string({ pattern: "^#[0-9a-f]{6}$" })]).desc('A colour: a theme role, or a hex. Example: "#e8590c"');
 
 export const PATH = v.string().desc('A placement\'s path inside a folded stack — names joined by "/", a grafted part prefixing its own. Example: "motor.0/propeller.0"');
 
@@ -84,10 +87,10 @@ export const LINE = v.object({
 
 export const NOTE = v.object({
   text: v.string().desc('The callout. Example: "Don\'t tighten it yet! Leave it loose."'),
-  symbols: v.array(v.string()).optional().desc('Its kind and family — note.* and warn.* symbols. Example: ["note.warning", "warn.loose"]'),
+  kind: v.enum(CALLOUTS).optional().desc('What kind of callout: a tip, a warning, or the family a warning is of; absent, a plain note. Example: "ORIENTATION"'),
   images: v.array(v.string()).optional().desc('File paths. Example: ["manual/cf5a470bc835.webp"]'),
   at: ANCHOR.optional(),
-}).desc('A callout beside the instruction — a tip, a warning, a torque. Example: { text: "Leave it loose.", symbols: ["note.warning", "warn.loose"] }');
+}).desc('A callout beside the instruction — a tip, a warning, a torque. Example: { text: "Leave it loose.", kind: "WARNING" }');
 
 export const PLACED = v.object({
   layer: v.string().desc('The slug of the layer this placement belongs to — a part\'s own layer, or a step of it. Example: "motor"'),
@@ -120,10 +123,11 @@ export const INSTRUCTED = v.object({
 }).desc('What a step (or a guide\'s intro) tells the builder — numbered lines and media. Example: { lines: [{ text: "Thread the 16mm bolt." }], images: [] }');
 
 export const ANNOTATED = v.object({
-  notes: v.array(NOTE).desc('Callouts beside the body. Example: [{ text: "Leave it loose.", symbols: ["note.warning"] }]'),
-}).desc('The callouts of a step or a guide. Example: { notes: [{ text: "Leave it loose.", symbols: ["note.warning", "warn.loose"] }] }');
+  notes: v.array(NOTE).desc('Callouts beside the body. Example: [{ text: "Leave it loose.", kind: "WARNING" }]'),
+}).desc('The callouts of a step or a guide. Example: { notes: [{ text: "Leave it loose.", kind: "WARNING" }] }');
 
 export const STAGED = v.object({
+  colour: COLOUR.optional(),
   camera: v.object({
     target: VEC3.desc("What the camera looks at, metres. Example: [0, 0.02, 0]"),
     position: VEC3.desc("Where the camera sits, metres. Example: [0.3, 0.25, 0.3]"),
@@ -135,7 +139,17 @@ export const STAGED = v.object({
     placements: v.array(v.string()).desc('Placements built on their own. Example: ["drone_rig.plate.0"]'),
     parts: v.array(v.string()).optional().desc('Parts built wherever they are placed, with everything under them. Example: ["motor"]'),
   }).optional().desc("What the stage shows as already built; absent, every earlier step. Example: { steps: [\"drone.01\"], placements: [] }"),
-  tints: v.record(v.string(), v.enum(TINTS)).optional().desc('Placement slug → a theme role. Example: { "drone_rig.arm.0": "warning" }'),
+  placements: v.array(
+    v.object({
+      literal: v.string().desc('A placement\'s slug, or a part\'s for every placement of it; either brings what is under it. Example: "tail.hinge.0"'),
+      status: v.enum(SHOWN).optional().desc('How the stage draws it at this step, over what the build says. Example: "ghost"'),
+      colour: COLOUR.optional(),
+      label: v.boolean().optional().desc("true draws its name beside it, a line to the piece. Example: true"),
+      translation: VEC3.optional().desc("Where it sits at this step, metres, in its parent's frame. Example: [0.06, 0, 0]"),
+      rotation: QUAT.optional().desc("Quaternion xyzw. Example: [0, 0, 0, 1]"),
+      scale: VEC3.optional().desc("Per axis. Example: [1, 1, 1]"),
+    }).desc('What this step says about one placement. Example: { literal: "tail.hinge.0", colour: "warning" }'),
+  ).optional().desc('What this step says about single placements, this step only; a later entry wins. Example: [{ literal: "stack.fc.0", status: "ghost" }]'),
 }).desc("How the stage shows a step or a guide's overview. Example: { camera: { target: [0, 0, 0], position: [0.3, 0.25, 0.3] }, explode: 0 }");
 
 /** @deprecated PREPARED is derived by the fold — the enum member stays until the rows are re-read without it. */
@@ -156,7 +170,7 @@ const SYMBOLS = v.array(v.string()).optional().desc('The family symbols on the l
 const UPTO = v.integer({ minimum: 0 }).optional().desc("How many steps of a guide to fold: 0 is nothing built, absent is every step; a part ignores it. Example: 4");
 const LINES = v.array(LINE).optional().desc('The numbered body, whole. Example: [{ text: "Thread the 16mm bolt." }]');
 const IMAGES = v.array(v.string()).optional().desc('File paths, whole. Example: ["manual/cf5a470bc835.webp"]');
-const NOTES = v.array(NOTE).optional().desc('The callouts, whole. Example: [{ text: "Leave it loose.", symbols: ["note.warning"] }]');
+const NOTES = v.array(NOTE).optional().desc('The callouts, whole. Example: [{ text: "Leave it loose.", kind: "WARNING" }]');
 const STAGING = STAGED.optional().desc("How the stage shows it, whole. Example: { explode: 0.4 }");
 
 export const VERBS = {

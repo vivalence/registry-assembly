@@ -14,7 +14,7 @@ export const mentions = (row) => {
   if (row.ontology === "guide") slugs.push(...(trait.SEQUENCED?.subject ? [trait.SEQUENCED.subject] : []), ...(trait.SEQUENCED?.sections ?? []).flatMap((section) => section.steps ?? []));
   if (row.ontology === "step") slugs.push(...(trait.ASSEMBLED?.placements ?? []).map((one) => one.literal));
   if (row.ontology === "step" || row.ontology === "guide") {
-    slugs.push(...(trait.STAGED?.built?.steps ?? []), ...(trait.STAGED?.built?.placements ?? []), ...(trait.STAGED?.built?.parts ?? []), ...Object.keys(trait.STAGED?.tints ?? {}));
+    slugs.push(...(trait.STAGED?.built?.steps ?? []), ...(trait.STAGED?.built?.placements ?? []), ...(trait.STAGED?.built?.parts ?? []), ...(trait.STAGED?.placements ?? []).map((one) => one.literal));
     slugs.push(...anchored(trait.INSTRUCTED?.lines), ...anchored(trait.ANNOTATED?.notes));
   }
   return [...new Set(slugs.filter(Boolean))];
@@ -29,7 +29,7 @@ export const reslugged = (row, to) => {
   }
   if (trait.ASSEMBLED) trait.ASSEMBLED.placements = (trait.ASSEMBLED.placements ?? []).map((one) => ({ ...one, literal: to(one.literal) }));
   if (trait.STAGED?.built) trait.STAGED.built = { steps: (trait.STAGED.built.steps ?? []).map(to), placements: (trait.STAGED.built.placements ?? []).map(to), ...(trait.STAGED.built.parts ? { parts: trait.STAGED.built.parts.map(to) } : {}) };
-  if (trait.STAGED?.tints) trait.STAGED.tints = Object.fromEntries(Object.entries(trait.STAGED.tints).map(([slug, tint]) => [to(slug), tint]));
+  if (trait.STAGED?.placements) trait.STAGED.placements = trait.STAGED.placements.map((one) => ({ ...one, literal: to(one.literal) }));
   if (trait.INSTRUCTED?.lines) trait.INSTRUCTED.lines = trait.INSTRUCTED.lines.map(anchor);
   if (trait.ANNOTATED?.notes) trait.ANNOTATED.notes = trait.ANNOTATED.notes.map(anchor);
   return trait;
