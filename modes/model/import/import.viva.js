@@ -4,7 +4,7 @@ import { ISOLATES, JOB } from "./schematics.js";
 export { aperture } from "./aperture/index.js";
 
 export const manifest = {
-  type: "editor",
+  type: "model",
   slug: "import",
   name: "Import",
   version: "0.1.0",

@@ -18,7 +18,7 @@ describe("the harness over the assembly rig — what the model is handed", { san
 
   beforeAll(async () => {
     rig = await mount();
-    editor = rig.entities.mode.create({ type: "editor", slug: "assembly", name: "Assembly", traits: [], installed: "", version: "0.1.0" });
+    editor = rig.entities.mode.create({ type: "model", slug: "editor", name: "Model editor", traits: [], installed: "", version: "0.1.0" });
     const user = rig.user;
     await rig.em.flush();
     rig.em.setFilterParams("user", { user: user.id });

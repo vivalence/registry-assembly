@@ -31,7 +31,7 @@ The barrel (`domain/assembly/assembly.viva.js`) is what the runtime reads of a d
 - `generators/` — `fastener.bolt · standoff · nut`: params schema + `build(params) → Object3D`, metres, no DOM; served as three.js JSON by `/geometry`.
 - `topologies/{part,placement,step,guide}` — each ships its ontology's root symbol and the universal vocabulary: `material.* source.*` · `joint.*` · `note.* warn.* tool.*`. A product's own families come with its topography; a guide's sections are its own content, not symbols.
 
-## the importer — `@assembly/editor/import`
+## the importer — `@assembly/model/import`
 
 Model files into the domain, in **two stages**: a **dry parse** that reads everything the file yields in the file's own units and frame, then the operator's choices, then a **live parse** that decodes again under those choices and mints. Drop `glb · gltf · blend · usd · usdz · usdc · fbx · obj · stl · 3ds · step · iges` on the screen; each file is a **job** walking **sniff → validate → decode → review → commit**, every line of its decode log streamed as it happens.
 
@@ -41,9 +41,9 @@ Model files into the domain, in **two stages**: a **dry parse** that reads every
 - `/revert { slugs }` — a commit taken back through `/retract`, the GLBs off the mountpoint; the job drops to parsed.
 - `/tree { slugs }` — the domain's `/tree`, scoped to what this buffer committed (`[]` reads nothing).
 
-## the editor — `@assembly/editor/assembly`
+## the editor — `@assembly/model/editor`
 
-Create, read, update, delete, place, move, retract — the composition: parts and placements. Guides and steps show in the tree as roots that open their subject; they are authored in `@assembly/editor/guide`. Four panes on one buffer, each toggled from the header, separated by dragged seams; every colour is a dapper token, so the editor follows the theme:
+Create, read, update, delete, place, move, retract — the composition: parts and placements. Guides and steps show in the tree as roots that open their subject; they are authored in `@assembly/guide/editor`. Four panes on one buffer, each toggled from the header, separated by dragged seams; every colour is a dapper token, so the editor follows the theme:
 
 - **tree** — two scopes. `daemon` lists every model the daemon holds, a part nothing places, with an ontology filter and a search; a click on a model previews it on the stage. `buffer` lists the model in view, rooted at its outermost edge, with `root` · `up` and the crumbs of the subject's way up; a row's `subject` button narrows the stage to it without moving the root. Above both, the row that creates: `new` (a model in the daemon, a part placed into the subject in the buffer) · `dup` · `rename` · `delete`.
 - **stage** — the subject folded `upto` a step, each placement a group named by its path, composed against its parent's frame. `translate · rotate · scale` on a `TransformControls` gizmo, **one `/placement` over per release**; `joint` picks the placements a fastener holds and writes `JOINED` with a torque. The pick reads as a translucent solid in a cage, everything else ghosted; `frame` fits the fold, `focus` fits one literal.
@@ -58,7 +58,7 @@ The inspector's form is **drawn from the domain's schematic**: `/schematics` ser
 
 The harness (`harness.js`) puts three sections in the system prompt on every call — `[Ontology]` rendered from the same schematics, `[Vocabulary]`, `[Screen]`: the open buffer's subject folded as lines (`path ← ref (slug) @ [x, y, z]`), the selection, the focus, the last written literal, or plainly that nothing is open, with the daemon's roots named so the model can say one. Three tools of its own — `open { slug, upto? }`, `select { slugs }`, `focus { slug }` — write the thread's newest buffer of this mode; the domain's nine change the literals. **The whole screen lives in `buffer.data`** — subject · upto · selected · scope · filter · the search · the expanded tree keys · the cursor · focus · desk · gizmo · the joint draft and its torque · the inspector's unsaved draft and its move fields · a rename typed and unrun · the composer's text, its turns and which one is shown · the activity · which panes are shown and how wide. `retain(patch)` sets `buffer.data` and persists it, debounced for typing and seam drags. A buffer you come back to is exactly where you left it; a fresh one is empty because it is created with `data: {}`.
 
-## the guide — `@assembly/editor/guide` · `@assembly/player/guide`
+## the guide — `@assembly/guide/editor` · `@assembly/guide/player`
 
 Two modes over the same two literals, from one design. Both read one door, `/read { guide }` — the guide, its steps in order with what each lays out, the subject's fold with each placement's step, the parts' cards, the symbols' names — and draw the same **stage kit** (`buffer/kit/`, copied into each, pinned byte-equal by `tests/kit.test.js`): a GLB per part from the cargo, one group per placement composed through its parent frame, a status per placement (fresh · solid · ghost · hidden), a tint per placement, explode, settle, named views that swing round the model, a view cube, focus, a camera snapshot. Every hue is a theme token (`P-hex-zero`).
 
@@ -68,7 +68,7 @@ Two modes over the same two literals, from one design. Both read one door, `/rea
 ## run
 
 ```
-deno test --config <repo>/deno.jsonc -A --no-check ~/.viva/registry/assembly/domain/ ~/.viva/registry/assembly/modes/editor/import/ ~/.viva/registry/assembly/modes/editor/assembly/ ~/.viva/registry/assembly/modes/editor/guide/ ~/.viva/registry/assembly/modes/player/guide/ ~/.viva/registry/assembly/tests/kit.test.js
+deno test --config <repo>/deno.jsonc -A --no-check ~/.viva/registry/assembly/domain/ ~/.viva/registry/assembly/modes/model/import/ ~/.viva/registry/assembly/modes/model/editor/ ~/.viva/registry/assembly/modes/guide/editor/ ~/.viva/registry/assembly/modes/guide/player/ ~/.viva/registry/assembly/tests/kit.test.js
 ```
 
 The rig (`tests/rig.js`) is a real in-memory datamap over the entities with the four vocabularies installed, a topography-shaped mode the tests mint as, and the domain mounted the way `resolution.domain` mounts it — the aperture bound and slurped, `daemon.call` built, the resolve hook called, an inline http connection, the tools armed with a caller (`rig.call` · `rig.conn.call` · `rig.invoke`). `tests/render.js` server-renders a view offline. `modes/bak/import` is the old importer, ignored by paladin; `deno test <pkg>/` walks it, so name the live directories.

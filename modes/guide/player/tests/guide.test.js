@@ -8,7 +8,7 @@ import { harness, index, ROLE, screen } from "../harness.js";
 import { tools } from "../tools/index.js";
 import { built, chips, kindOf, nextStep, sections, statuses, through, tints } from "../buffer/kit/guide.js";
 import { entries, frames, IDENTITY } from "../buffer/kit/frames.js";
-import * as mode from "../guide.viva.js";
+import * as mode from "../player.viva.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
 
@@ -70,7 +70,7 @@ describe("the player over the assembly rig", { sanitizeResources: false, sanitiz
 
   beforeAll(async () => {
     rig = await mount();
-    player = rig.entities.mode.create({ type: "player", slug: "guide", name: "Guide", traits: [], installed: "", version: "0.1.0" });
+    player = rig.entities.mode.create({ type: "guide", slug: "player", name: "Guide", traits: [], installed: "", version: "0.1.0" });
     const user = rig.user;
     await rig.em.flush();
     rig.em.setFilterParams("user", { user: user.id });
@@ -93,9 +93,9 @@ describe("the player over the assembly rig", { sanitizeResources: false, sanitiz
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL player named guide; a buffer that opens nothing", () => {
-    expect(mode.manifest.type).toBe("player");
-    expect(mode.manifest.slug).toBe("guide");
+  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL guide named player; a buffer that opens nothing", () => {
+    expect(mode.manifest.type).toBe("guide");
+    expect(mode.manifest.slug).toBe("player");
     expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATIONAL", "EXPOSED", "HARNESSED", "TOOLING", "VIEWABLE"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
     expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "views"]));

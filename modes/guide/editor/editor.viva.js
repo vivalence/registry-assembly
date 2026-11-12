@@ -6,8 +6,8 @@ export { harness } from "./harness.js";
 export { tools } from "./tools/index.js";
 
 export const manifest = {
-  type: "editor",
-  slug: "guide",
+  type: "guide",
+  slug: "editor",
   name: "Guide editor",
   version: "0.1.0",
   description:

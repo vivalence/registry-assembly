@@ -120,7 +120,7 @@ describe("the importer over the assembly rig", () => {
     root = await Deno.makeTempDir({ prefix: "import-mount-" });
     await Deno.mkdir(join(root, "intake/model"), { recursive: true });
     for await (const entry of Deno.readDir(HARVEST)) if (entry.isFile) await Deno.copyFile(join(HARVEST, entry.name), join(root, "intake/model", entry.name));
-    importer = rig.entities.mode.create({ type: "editor", slug: "import", name: "Import", traits: [], installed: "", version: "0.1.0" });
+    importer = rig.entities.mode.create({ type: "model", slug: "import", name: "Import", traits: [], installed: "", version: "0.1.0" });
     await rig.em.flush();
     const held = { id: importer.id, entity: importer, mountpoint: { absolute: root }, freight: null };
     bound = new Vector().use(shard.context.spread(contexts.daemonDie, rig.daemon)).use(shard.context.bind("mode", held)).graft(aperture);
@@ -132,8 +132,8 @@ describe("the importer over the assembly rig", () => {
     await Deno.remove(root, { recursive: true }).catch(() => {});
   });
 
-  it("P-manifest: a FILESINK · VIEWABLE · EXPOSED editor named import; the buffer carries the queue; four natures", () => {
-    expect(mode.manifest.type).toBe("editor");
+  it("P-manifest: a FILESINK · VIEWABLE · EXPOSED model named import; the buffer carries the queue; four natures", () => {
+    expect(mode.manifest.type).toBe("model");
     expect(mode.manifest.slug).toBe("import");
     expect([...mode.manifest.traits].sort()).toEqual(["EXPOSED", "FILESINK", "VIEWABLE"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});

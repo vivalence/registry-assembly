@@ -7,7 +7,7 @@ import { answered, assemble, call as call_, say, scripted, userTurn } from "../.
 import { harness, head, index, LIMIT, ontology, ROLE, screen, status } from "../harness.js";
 import { tools } from "../tools/index.js";
 import { guideValues, noteKind, noteOptions, noteSymbols, payload, stepValues } from "../buffer/form.js";
-import * as mode from "../guide.viva.js";
+import * as mode from "../editor.viva.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
 
@@ -44,7 +44,7 @@ describe("the guide editor over the assembly rig", { sanitizeResources: false, s
 
   beforeAll(async () => {
     rig = await mount();
-    editor = rig.entities.mode.create({ type: "editor", slug: "guide", name: "Guide editor", traits: [], installed: "", version: "0.1.0" });
+    editor = rig.entities.mode.create({ type: "guide", slug: "editor", name: "Guide editor", traits: [], installed: "", version: "0.1.0" });
     const user = rig.user;
     await rig.em.flush();
     rig.em.setFilterParams("user", { user: user.id });
@@ -66,9 +66,9 @@ describe("the guide editor over the assembly rig", { sanitizeResources: false, s
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL editor named guide; a buffer that opens nothing", () => {
-    expect(mode.manifest.type).toBe("editor");
-    expect(mode.manifest.slug).toBe("guide");
+  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL guide named editor; a buffer that opens nothing", () => {
+    expect(mode.manifest.type).toBe("guide");
+    expect(mode.manifest.slug).toBe("editor");
     expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATIONAL", "EXPOSED", "HARNESSED", "TOOLING", "VIEWABLE"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
   });

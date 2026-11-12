@@ -6,15 +6,15 @@ export { harness } from "./harness.js";
 export { tools } from "./tools/index.js";
 
 export const manifest = {
-  type: "editor",
-  slug: "assembly",
-  name: "Assembly",
-  version: "0.3.0",
+  type: "model",
+  slug: "editor",
+  name: "Model editor",
+  version: "0.4.0",
   description:
     "The composition editor of the assembly domain: every model the daemon holds, or the one in the buffer, as a tree that creates, duplicates, " +
     "renames and retracts; the subject folded on a three.js stage with a gizmo that moves a placement and a joint mode that says what " +
     "a fastener holds; an inspector whose form is the domain's own schematic; and a harness underneath — the context the agent is given, " +
-    "a composer that runs lines as verbs, the activity of every call. Guides and steps are authored in @assembly/editor/guide.",
+    "a composer that runs lines as verbs, the activity of every call. Guides and steps are authored in @assembly/guide/editor.",
   traits: ["VIEWABLE", "EXPOSED", "HARNESSED", "TOOLING", "CONVERSATIONAL"],
 };
 

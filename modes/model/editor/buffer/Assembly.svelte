@@ -698,7 +698,7 @@
 
 <div class="editor" bind:this={root} tabindex="-1" role="application" aria-label="Assembly editor" style="grid-template-rows:{gridRows}" onkeydown={keyed}>
   <header>
-    <span class="who">@assembly/editor/assembly</span>
+    <span class="who">@assembly/model/editor</span>
     <span class="rule"></span>
     <span class="key">subject</span>
     <span class="value">{local.subject ?? "— · nothing open"}</span>

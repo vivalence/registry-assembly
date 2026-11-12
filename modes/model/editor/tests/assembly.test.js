@@ -8,7 +8,7 @@ import { tools } from "../tools/index.js";
 import { IDENTITY, at, exampleOf, fields, into, payload, read, show, values } from "../buffer/form.js";
 import { IDENTITY as ORIGIN, chain, free, frames, opening, parent, rooted, visible } from "../buffer/fold.js";
 import { lines, parse } from "../buffer/cli.js";
-import * as mode from "../assembly.viva.js";
+import * as mode from "../editor.viva.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
 
@@ -71,7 +71,7 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
 
   beforeAll(async () => {
     rig = await mount();
-    editor = rig.entities.mode.create({ type: "editor", slug: "assembly", name: "Assembly", traits: [], installed: "", version: "0.1.0" });
+    editor = rig.entities.mode.create({ type: "model", slug: "editor", name: "Model editor", traits: [], installed: "", version: "0.1.0" });
     const user = rig.user;
     await rig.em.flush();
     rig.em.setFilterParams("user", { user: user.id });
@@ -85,9 +85,9 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL editor named assembly; a buffer that opens nothing", () => {
-    expect(mode.manifest.type).toBe("editor");
-    expect(mode.manifest.slug).toBe("assembly");
+  it("P-manifest: an VIEWABLE · EXPOSED · HARNESSED · TOOLING · CONVERSATIONAL model named editor; a buffer that opens nothing", () => {
+    expect(mode.manifest.type).toBe("model");
+    expect(mode.manifest.slug).toBe("editor");
     expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATIONAL", "EXPOSED", "HARNESSED", "TOOLING", "VIEWABLE"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
     expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "views"]));

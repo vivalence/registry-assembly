@@ -5,8 +5,8 @@ export { harness } from "./harness.js";
 export { tools } from "./tools/index.js";
 
 export const manifest = {
-  type: "player",
-  slug: "guide",
+  type: "guide",
+  slug: "player",
   name: "Guide",
   version: "0.1.0",
   description:
