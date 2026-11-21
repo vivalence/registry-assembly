@@ -71,7 +71,7 @@
         held.notes[k] = kind ? { ...rest, kind } : rest;
       })}
     onremove={(k) => ctl.editGuide((held) => held.notes.splice(k, 1))}
-    onadd={() => ctl.editGuide((held) => held.notes.push({ text: "", symbols: [] }))} />
+    onadd={() => ctl.editGuide((held) => held.notes.push({ text: "" }))} />
 
   <div class="h">Camera</div>
   <Camera has={!!meta.staged?.camera} onsnap={() => ctl.snapshot("guide")} ongo={() => ctl.goCamera("guide")} onclear={() => ctl.clearCamera("guide")} />
@@ -205,7 +205,7 @@
     border-bottom: 1px solid var(--paper-2);
   }
   .option.on {
-    background: var(--step-surface);
+    background: var(--step-plane);
   }
   .option .name {
     flex: 1;

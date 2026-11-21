@@ -6,8 +6,8 @@ import { aperture } from "../aperture/index.js";
 import { answered, assemble, call as call_, say, scripted, userTurn } from "../../../../tests/hal.js";
 import { harness, index, ROLE, screen } from "../harness.js";
 import { tools } from "../tools/index.js";
-import { built, chips, nextStep, restaged, sections, staged, statuses, through, tints } from "../buffer/kit/guide.js";
-import { entries, frames, IDENTITY } from "../buffer/kit/frames.js";
+import { built, chips, nextStep, pins, posed, restaged, sections, staged, statuses, through, tints, tone } from "../buffer/kit/guide.js";
+import { entries, frames, IDENTITY, seats } from "../buffer/kit/frames.js";
 import * as mode from "../player.viva.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
@@ -43,6 +43,48 @@ describe("the guide, read for a screen — pure", () => {
     expect(restaged(held, "a", { colour: null })).toEqual([{ literal: "b", status: "ghost" }]);
     expect(restaged(undefined, "c", { colour: "#e8590c" })).toEqual([{ literal: "c", colour: "#e8590c" }]);
     expect(held).toEqual([{ literal: "a", colour: "warning" }, { literal: "b", status: "ghost" }]);
+  });
+
+  it("P-posed: a piece a step poses sits where the step says, what hangs under it follows; a piece it does not pose keeps its seat; the fold is not mutated", () => {
+    const tree = {
+      parts: {},
+      placements: [
+        { slug: "r", ref: "rig", path: "r", children: ["r/m"], translation: [1, 0, 0] },
+        { slug: "m", ref: "motor", path: "r/m", parent: "r", children: [], translation: [0, 2, 0] },
+        { slug: "n", ref: "motor", path: "n", children: [] },
+      ],
+    };
+    const one = [step("h.01", [["r"]], { placements: [{ literal: "r", translation: [5, 0, 0], colour: "warning" }] })];
+    const moved = posed(tree, staged(one, 1, tree));
+    expect(moved.placements.map((held) => held.translation)).toEqual([[5, 0, 0], [0, 2, 0], undefined]);
+    expect(seats(moved)["r/m"].parentMatrix.slice(12, 15)).toEqual([5, 0, 0]);
+    expect(seats(posed(tree, staged(one, 0, tree)))["r/m"].parentMatrix.slice(12, 15)).toEqual([1, 0, 0]);
+    expect(seats(moved).n).toEqual({ path: "n", slug: "n", parentMatrix: IDENTITY });
+    expect(tree.placements[0].translation).toEqual([1, 0, 0]);
+  });
+
+  it("P-pins: a label on each piece a step says so of, by the piece's own name, reaching what is under it; a callout for each anchored note, its tone from its kind; a note without an anchor pins nothing", () => {
+    const tree = {
+      parts: { rig: { LABELED: { name: "Rig" } }, motor: {} },
+      placements: [
+        { slug: "r", ref: "rig", name: "rig.0", path: "r", children: ["r/m"] },
+        { slug: "m", ref: "motor", name: "motor.0", path: "r/m", parent: "r", children: [] },
+      ],
+    };
+    const one = [step("h.01", [["r"]], { placements: [{ literal: "r", label: true }, { literal: "m", label: true, status: "ghost" }] })];
+    const notes = [
+      { text: "plain, in the panel" },
+      { text: "Arrow to the front.", kind: "ORIENTATION", images: ["manual/a.webp"], at: { literals: ["r"], offset: [0, 0.02, 0] } },
+      { text: "A tip.", kind: "TIP", at: { position: [0, 1, 0] } },
+    ];
+    expect(pins(one, 1, tree, notes)).toEqual([
+      { id: "label:r", tone: "label", text: "Rig", literals: ["r", "m"] },
+      { id: "label:m", tone: "label", text: "motor.0", literals: ["m"] },
+      { id: "note:1", tone: "warning", text: "Arrow to the front.", images: ["manual/a.webp"], literals: ["r", "m"], offset: [0, 0.02, 0] },
+      { id: "note:2", tone: "tip", text: "A tip.", images: [], position: [0, 1, 0], literals: [] },
+    ]);
+    expect(pins(one, 0, tree)).toEqual([]);
+    expect([{ kind: "TIP" }, { kind: "LOOSE" }, {}].map(tone)).toEqual(["tip", "warning", "plain"]);
   });
 
   it("P-status: overview is all solid; fresh is named by the step; solid is built; ghost is later or never named when ghost is on; else hidden", () => {
@@ -102,12 +144,12 @@ describe("the player over the assembly rig", { sanitizeResources: false, sanitiz
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESS · TOOLING · CONVERSATION guide named player; a buffer that opens nothing", () => {
+  it("P-manifest: a SURFACED · EXPOSED · HARNESS · TOOLING · CONVERSATION guide named player; a buffer that opens nothing", () => {
     expect(mode.manifest.type).toBe("guide");
     expect(mode.manifest.slug).toBe("player");
-    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "TOOLING", "VIEWABLE"]);
+    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "SURFACED", "TOOLING"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
-    expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "views"]));
+    expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "surfaces"]));
   });
 
   it("P-read: the daemon's guides as cards; one guide whole — steps in order with what each lays out, the fold with each placement's step, the parts' cards, the symbols' names", async () => {

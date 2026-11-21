@@ -12,7 +12,7 @@ export const manifest = {
     "Model files into the assembly domain: drop glb · gltf · blend · usd · usdz · usdc · fbx · obj · stl · 3ds · step · iges, and each walks " +
     "sniff → validate → decode → remap → commit — blender headless (FreeCAD first for a b-rep) to one GLB per object in metres, Y-up, " +
     "then parts and placements minted through the domain's verbs — every import its own, under its own root. The queue and every decode log are the buffer's; the scene tree is a reading of what the domain holds.",
-  traits: ["FILESINK", "VIEWABLE", "EXPOSED"],
+  traits: ["FILESINK", "SURFACED", "EXPOSED"],
 };
 
 export const statics = {
@@ -28,6 +28,6 @@ export const buffer = v.buffer({
   },
 });
 
-export const views = [
+export const surfaces = [
   { slug: "import", mount: "buffer/Import.svelte", mime: mime.dom.svelte },
 ];

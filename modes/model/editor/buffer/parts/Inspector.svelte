@@ -1,8 +1,8 @@
 <script>
   import { untrack } from "svelte";
-  import { IDENTITY, at, fields, into as written, read, show, values } from "../form.js";
+  import { IDENTITY, at, fields, into as written, read, rolesOf, show, values } from "../form.js";
 
-  let { scroll = 0, onscroll, card = null, count = 0, shapes = null, vocabulary = {}, siblings = [], draft = null, draftOf = null, move = { layer: "", parent: "" }, onstate, onsave, onmove, onretract } = $props();
+  let { scroll = 0, onscroll, card = null, count = 0, shapes = null, vocabulary = {}, siblings = [], draft = null, draftOf = null, move = { layer: "", parent: "" }, onstate, onsave, onmove, onretract, oncolour } = $props();
 
   let fault = $state(null);
   let body = $state(null);
@@ -12,6 +12,7 @@
   const held = $derived(card && draft && draftOf === card.slug ? draft : was);
   const schema = $derived(card && shapes ? shapes.VERBS[card.ontology] : null);
   const shown = $derived(schema ? fields(schema) : []);
+  const worn = $derived(card ? card.trait.STAGED?.colour : undefined);
 
   $effect(() => {
     if (restored || !body || !shown.length) return;
@@ -83,7 +84,15 @@
           <span class="gap"></span>
           <span class="group">{field.group ?? (field.required ? "identity" : "")}</span>
         </div>
-        {#if field.kind === "lines"}
+        {#if field.key === "colour"}
+          <div class="options">
+            <button class="swatch own" class:on={!worn} title="its file's own" onclick={() => oncolour(null)}></button>
+            {#each rolesOf(schema.properties.colour) as role (role)}
+              <button class="swatch" class:on={worn === role} title={role} style="background:var(--tint-{role})" onclick={() => oncolour(role)}></button>
+            {/each}
+            <input class="hex" type="color" title="any colour" value={worn?.startsWith("#") ? worn : undefined} onchange={(event) => oncolour(event.target.value)} />
+          </div>
+        {:else if field.kind === "lines"}
           <textarea rows="3" value={show(field.kind, at(held, field.key))} placeholder={example(field)} oninput={(event) => set(field, event.target.value)} onkeydown={(event) => event.key === "Enter" && (event.metaKey || event.ctrlKey) && save()}></textarea>
         {:else if field.kind === "flag"}
           <button class="flag" class:off={at(held, field.key) === false} onclick={() => toggle(field)}>{field.key} · {at(held, field.key) === false ? "false" : "true"}</button>
@@ -255,6 +264,29 @@
     background: var(--pick);
     border-color: var(--pick-edge);
     color: var(--pick-ink);
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .swatch.own {
+    background: repeating-linear-gradient(135deg, transparent 0 4px, var(--line) 4px 8px);
+  }
+  .swatch.on {
+    border-color: var(--pick-edge);
+  }
+  .hex {
+    width: 30px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: transparent;
+    cursor: pointer;
   }
   .families {
     display: flex;

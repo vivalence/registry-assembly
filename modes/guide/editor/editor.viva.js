@@ -15,7 +15,7 @@ export const manifest = {
     "what a step installs lit; an inspector with the guide's own tab — subject, name, intro, notes, camera, inventory — and the step's: " +
     "prerequisites, the parts it pulls in, its lines, its notes, its camera, its pictures, its tools. Every edit lands in the literal " +
     "it came from, saved as you type; the whole screen lives in the buffer.",
-  traits: ["VIEWABLE", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
+  traits: ["SURFACED", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
 };
 
 export const buffer = v.buffer({
@@ -42,6 +42,6 @@ export const buffer = v.buffer({
   },
 });
 
-export const views = [
+export const surfaces = [
   { slug: "guide", mount: "buffer/Guide.svelte", mime: mime.dom.svelte },
 ];

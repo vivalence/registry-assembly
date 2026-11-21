@@ -1,10 +1,11 @@
 <script>
   // the callouts of a step or a guide: text and a kind — a plain note, a tip, a warning
-  let { notes = [], onset, onkind, onremove, onadd } = $props();
+  import { tone } from "../kit/guide.js";
+
+  let { notes = [], selected = [], asset = (path) => path, onset, onkind, onremove, onadd, onanchor = null, onpicture, onunpicture } = $props();
 
   const FAMILIES = ["ORIENTATION", "LENGTH", "WIRES", "LOOSE", "TIGHT", "MAGNET", "FORCE"];
   const options = [["", "note"], ["TIP", "tip"], ["WARNING", "warning"], ...FAMILIES.map((one) => [one, `warning · ${one.toLowerCase()}`])];
-  const tone = (note) => (note.kind === "TIP" ? "tip" : note.kind ? "warning" : "plain");
 </script>
 
 <div class="notes">
@@ -19,6 +20,25 @@
           <option {value}>{label}</option>
         {/each}
       </select>
+      {#if onanchor}
+        <div class="pinning">
+          {#if note.at}
+            <button class="pinner on" title="Take it off the stage" onclick={() => onanchor(k, null)}>⌖ on {(note.at.literals ?? []).length} · ×</button>
+          {:else}
+            <button class="pinner" disabled={!selected.length} title="Pin this note to the pieces selected on the stage" onclick={() => onanchor(k, selected)}>
+              ⌖ {selected.length ? `pin to ${selected.length} selected` : "select pieces to pin"}
+            </button>
+          {/if}
+          <button class="pinner" title="Pictures from the manual" onclick={() => onpicture(k)}>+ picture</button>
+        </div>
+        {#if note.images?.length}
+          <div class="shots">
+            {#each note.images as image (image)}
+              <button class="shot" title="Remove {image}" onclick={() => onunpicture(k, image)}><img src={asset(image)} alt="" /></button>
+            {/each}
+          </div>
+        {/if}
+      {/if}
     </div>
   {/each}
   <button class="add" onclick={onadd}>+ note</button>
@@ -42,7 +62,7 @@
     --tone-ink: var(--ink-2);
   }
   .note.tip {
-    background: var(--tip-surface);
+    background: var(--tip-plane);
     border-left-color: var(--tip);
     --tone: var(--tip);
     --tone-ink: var(--ink);
@@ -84,6 +104,48 @@
     font: 500 11px var(--font-family-body);
     color: var(--tone-ink);
     padding: 2px 4px;
+  }
+  .pinning {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pinner {
+    border: 1px solid var(--tone);
+    border-radius: 3px;
+    background: var(--paper);
+    color: var(--tone-ink);
+    font: 500 11px var(--font-family-body);
+    padding: 2px 6px;
+    cursor: pointer;
+  }
+  .pinner:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .pinner.on {
+    font-weight: 700;
+  }
+  .shots {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .shot {
+    width: 54px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--tone);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--paper);
+  }
+  .shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .add {
     align-self: flex-start;

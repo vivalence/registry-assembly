@@ -188,7 +188,7 @@
   }
   .step-row.active {
     border-left-color: var(--step);
-    background: var(--step-surface);
+    background: var(--step-plane);
   }
   .step-row.guide-dragging {
     opacity: 0.4;

@@ -4,16 +4,17 @@
   import Lines from "./Lines.svelte";
   import Notes from "./Notes.svelte";
   import Camera from "./Camera.svelte";
-  import { TINTS } from "../../schematics.js";
+  import { SHOWN, TINTS } from "../../schematics.js";
 
-  let { ins, n = 0, steps = [], pre, scope, images = [], tools = [], names = {}, tintsOpen = null, folding = null, ctl } = $props();
+  let { ins, n = 0, steps = [], pre, scope, images = [], tools = [], names = {}, tintsOpen = null, folding = null, looks, asset, ctl } = $props();
 
   const pad = (v) => String(v).padStart(2, "0");
   const material = (slug) => (slug ? `var(--material-${slug.slice(slug.indexOf(".") + 1)}, var(--iron))` : "var(--iron)");
-  const LABELS = { pre: "Prerequisites", parts: "Parts", lines: "Instructions", notes: "Notes", camera: "Camera", media: "Media", tools: "Tools" };
+  const LABELS = { pre: "Prerequisites", parts: "Parts", pieces: "Pieces", lines: "Instructions", notes: "Notes", camera: "Camera", media: "Media", tools: "Tools" };
   const metas = $derived({
     pre: pre.summary,
     parts: `${scope.here} in this step`,
+    pieces: String(looks.entries.length),
     lines: `${ins.lines.length} ${ins.lines.length === 1 ? "line" : "lines"}`,
     notes: String(ins.notes.length),
     camera: ins.staged?.camera ? "saved" : "none",
@@ -155,6 +156,51 @@
   </div>
   {/if}
 
+  {@render heading("pieces")}
+  {#if shown("pieces")}
+  <div class="looks">
+    {#if looks.selected.length}
+      <div class="look-head">{looks.selected.length} selected on the stage · at this step only</div>
+      <div class="look-row">
+        <span class="look-key">show</span>
+        <div class="segments">
+          <button class:on={!looks.shared.status} onclick={() => ctl.look({ status: null })}>as built</button>
+          {#each SHOWN as status (status)}
+            <button class:on={looks.shared.status === status} onclick={() => ctl.look({ status })}>{status}</button>
+          {/each}
+        </div>
+      </div>
+      <div class="look-row">
+        <span class="look-key">colour</span>
+        <button title="Its own" class="tint" style="background:{tintVar(null)}" class:ring={!looks.shared.colour} onclick={() => ctl.look({ colour: null })}></button>
+        {#each TINTS as role (role)}
+          <button title={role} class="tint" style="background:{tintVar(role)}" class:ring={looks.shared.colour === role} onclick={() => ctl.look({ colour: role })}></button>
+        {/each}
+        <input class="look-hex" type="color" title="Any colour" value={looks.shared.colour?.startsWith("#") ? looks.shared.colour : undefined} onchange={(event) => ctl.look({ colour: event.target.value })} />
+      </div>
+      <div class="look-row">
+        <span class="look-key">label</span>
+        <button class="look-toggle" class:on={looks.shared.label} onclick={() => ctl.look({ label: looks.shared.label ? null : true })}>{looks.shared.label ? "named on the stage" : "off"}</button>
+      </div>
+      {#if looks.selected.length === 1}
+        <div class="look-row">
+          <span class="look-key">seat</span>
+          <input class="look-vector" value={looks.shared.translation ? looks.shared.translation.join(", ") : ""} placeholder={looks.seat.join(", ")} title="x, y, z in metres, in its parent's frame; empty is its own seat" onchange={(event) => ctl.pose(event.target.value)} />
+        </div>
+      {/if}
+    {:else}
+      <div class="none">Select pieces on the stage or under Parts to show, hide, colour, name or move them at this step.</div>
+    {/if}
+    {#each looks.entries as one (one.literal)}
+      <div class="item">
+        <button class="look-name grow" title="Select it" onclick={() => ctl.pickPiece(one.literal)}>{one.name}</button>
+        <span class="meta">{one.summary}</span>
+        <button class="x" title="Say nothing about it" onclick={() => ctl.unlook(one.literal)}>×</button>
+      </div>
+    {/each}
+  </div>
+  {/if}
+
   {@render heading("lines")}
   {#if shown("lines")}
   <Lines
@@ -169,6 +215,18 @@
   {#if shown("notes")}
   <Notes
     notes={ins.notes}
+    selected={looks.selected}
+    {asset}
+    onanchor={(k, literals) =>
+      ctl.editStep((held) => {
+        const { at: was, ...rest } = held.notes[k];
+        held.notes[k] = literals ? { ...rest, at: { literals } } : rest;
+      })}
+    onpicture={(k) => ctl.openPicker(k)}
+    onunpicture={(k, image) =>
+      ctl.editStep((held) => {
+        held.notes[k] = { ...held.notes[k], images: held.notes[k].images.filter((one) => one !== image) };
+      })}
     onset={(k, text) => ctl.editStep((held) => (held.notes[k] = { ...held.notes[k], text }))}
     onkind={(k, kind) =>
       ctl.editStep((held) => {
@@ -176,7 +234,7 @@
         held.notes[k] = kind ? { ...rest, kind } : rest;
       })}
     onremove={(k) => ctl.editStep((held) => held.notes.splice(k, 1))}
-    onadd={() => ctl.editStep((held) => held.notes.push({ text: "", symbols: [] }))} />
+    onadd={() => ctl.editStep((held) => held.notes.push({ text: "" }))} />
   {/if}
 
   {@render heading("camera")}
@@ -403,6 +461,68 @@
   .tint.ring {
     border-color: var(--ink);
   }
+  .looks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .look-head {
+    font: 600 12px var(--font-family-body);
+    color: var(--ink);
+  }
+  .look-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .look-key {
+    width: 44px;
+    font-size: 11.5px;
+    color: var(--dim);
+  }
+  .look-hex {
+    width: 30px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .look-toggle {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 500 12px var(--font-family-body);
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .look-toggle.on {
+    border-color: var(--ink);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .look-vector {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 12px var(--font-family-code);
+    padding: 3px 6px;
+  }
+  .look-name {
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 12.5px var(--font-family-body);
+    text-align: left;
+    padding: 0;
+    cursor: pointer;
+  }
   .none {
     font-size: 12px;
     color: var(--dim);
@@ -474,7 +594,7 @@
     border-bottom: 1px solid var(--paper-2);
   }
   .type.some {
-    background: var(--tip-surface);
+    background: var(--tip-plane);
   }
   .caret {
     flex: none;
@@ -552,7 +672,7 @@
     background: var(--paper-2);
   }
   .placement.on {
-    background: var(--tip-surface);
+    background: var(--tip-plane);
   }
   .where {
     flex: none;
@@ -583,7 +703,7 @@
     color: var(--ink);
   }
   .scope-foot.some {
-    background: var(--tip-surface);
+    background: var(--tip-plane);
   }
   .remove {
     border: 1px solid var(--hair);

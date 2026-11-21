@@ -5,11 +5,11 @@
   import GuideTab from "./parts/GuideTab.svelte";
   import StepTab from "./parts/StepTab.svelte";
   import Rail from "./parts/Rail.svelte";
-  import { entries as entriesOf } from "./kit/frames.js";
-  import { free, installs, kit as kitOf, nextStep, pad, restaged, sections as sectionsOf, statuses, tints as tintsOf } from "./kit/guide.js";
+  import { entries as entriesOf, seats as seatsOf } from "./kit/frames.js";
+  import { free, installs, kit as kitOf, nextStep, pad, pins as pinsOf, posed, restaged, sections as sectionsOf, staged as saidOf, statuses, tints as tintsOf } from "./kit/guide.js";
   import { guideValues, payload, stepValues } from "./form.js";
 
-  const { terminal, buffer, surface } = $props();
+  const { terminal, buffer, skin } = $props();
   const data = buffer.$data ?? null;
   const files = terminal.client.runtime.entities.file.$entities;
 
@@ -171,6 +171,9 @@
   const stepsWithDraft = $derived(steps.map((one) => (local.draft?.of === one.slug && local.draft.ontology === "step" ? { ...one, trait: { ...one.trait, STAGED: local.draft.staged ?? undefined } } : one)));
   const status = $derived(statuses(fold, stepsWithDraft, stageStep, { ghost, overview: guideTab }));
   const tints = $derived(tintsOf(stepsWithDraft, stageStep, fold));
+  const said = $derived(saidOf(stepsWithDraft, stageStep, fold));
+  const seats = $derived(fold ? seatsOf(posed(fold, said)) : {});
+  const pins = $derived(fold ? pinsOf(stepsWithDraft, stageStep, fold, guideTab ? meta?.notes : ins?.notes) : []);
   const labels = $derived.by(() => {
     const out = {};
     for (const one of placements) out[one.slug] = `${parts[one.ref]?.name ?? one.ref}${one.at != null ? ` · step ${pad(one.at + 1)}` : " · kit"}`;
@@ -451,11 +454,47 @@
     pullSelected: () => pull(toPull.map((one) => one.slug)),
     removeSelected: () => remove(hereSel.map((one) => one.slug)),
     showPicture: (path) => retain({ lb: path }),
-    openPicker: () => retain({ picker: true }),
+    openPicker: (note = null) => retain({ picker: note === null ? true : { note } }),
+    togglePicture: (path) =>
+      editStep((held) => {
+        const next = pictured.includes(path) ? pictured.filter((one) => one !== path) : [...pictured, path];
+        if (noted === null) held.images = next;
+        else held.notes[noted] = { ...held.notes[noted], images: next };
+      }),
+    look: (said) =>
+      editStep((held) => {
+        for (const id of local.sel) {
+          held.staged = { ...(held.staged ?? {}), placements: restaged(held.staged?.placements, id, said) };
+        }
+      }),
+    unlook: (id) =>
+      editStep((held) => {
+        held.staged = { ...held.staged, placements: held.staged.placements.filter((one) => one.literal !== id) };
+      }),
+    pose: (text) => {
+      if (!text.trim()) return ctl.look({ translation: null });
+      const at = text.split(/[\s,]+/).filter(Boolean).map(Number);
+      if (at.length !== 3 || at.some(Number.isNaN)) return say("seat", "three numbers, comma separated: x, y, z in metres");
+      ctl.look({ translation: at });
+    },
+    pickPiece: (id) => retain({ sel: [id] }),
     toggleTool: (slug) => editStep((held) => (held.symbols = held.symbols.includes(slug) ? held.symbols.filter((one) => one !== slug) : [...held.symbols, slug])),
   };
 
   const images = $derived((ins?.images ?? []).map((path) => ({ path, url: asset(path) })));
+  const noted = $derived(local.picker && local.picker !== true ? local.picker.note : null);
+  const pictured = $derived(noted === null ? (ins?.images ?? []) : (ins?.notes[noted]?.images ?? []));
+  const titled = (id) => parts[bySlug[id]?.ref]?.name ?? parts[id]?.name ?? id;
+  const looks = $derived.by(() => {
+    const entries = (ins?.staged?.placements ?? []).map((one) => ({
+      ...one,
+      name: titled(one.literal),
+      summary: [one.status, one.colour, one.label && "label", one.translation && "moved"].filter(Boolean).join(" · "),
+    }));
+    const shared = entries.find((one) => one.literal === local.sel[0]) ?? {};
+    const seat = bySlug[local.sel[0]]?.translation ?? [0, 0, 0];
+    return { entries, shared, seat, selected: local.sel };
+  });
   const toolChips = $derived(
     Object.keys(names)
       .filter((slug) => slug.startsWith("tool."))
@@ -604,6 +643,10 @@
         {status}
         {tints}
         {labels}
+        {seats}
+        {pins}
+        {asset}
+        onimage={(images, k) => retain({ lb: images[k] })}
         {explode}
         overview={guideTab && !stagedOf?.camera}
         step={stageStep}
@@ -638,13 +681,13 @@
       {#if local.picker}
         <div class="picker">
           <div class="picker-head">
-            <div><div class="guide-strong">Manual pages</div><div class="guide-mono">manual/*.webp on the freight · {pages.length} pictures</div></div>
+            <div><div class="guide-strong">{noted === null ? "Manual pages" : `Pictures of note ${noted + 1}`}</div><div class="guide-mono">manual/*.webp on the freight · {pages.length} pictures</div></div>
             <button class="outline" onclick={() => retain({ picker: false })}>Done</button>
           </div>
           <div class="picker-grid">
             {#each pages as path (path)}
-              {@const k = (ins?.images ?? []).indexOf(path)}
-              <button class="thumb" class:on={k >= 0} title={path} onclick={() => editStep((held) => (held.images = k >= 0 ? held.images.filter((one) => one !== path) : [...held.images, path]))}>
+              {@const k = pictured.indexOf(path)}
+              <button class="thumb" class:on={k >= 0} title={path} onclick={() => ctl.togglePicture(path)}>
                 <img src={asset(path)} alt="" />
                 {#if k >= 0}<span class="tag">{k + 1}</span>{/if}
               </button>
@@ -676,7 +719,7 @@
       <div class="nostep">No guide open.<br />Pick one on the left, or make a new one.</div>
     {:else if inspOpen && local.tab === "step"}
       {#if ins}
-        <StepTab {ins} n={step} {steps} {pre} {scope} {images} tools={toolChips} {names} tintsOpen={local.tints} {folding} {ctl} />
+        <StepTab {ins} n={step} {steps} {pre} {scope} {images} tools={toolChips} {names} tintsOpen={local.tints} {folding} {looks} {asset} {ctl} />
       {:else}
         <div class="nostep">{local.guide ? "No step on screen." : "No guide open."}<br />{local.guide ? "Pick one on the left, or add a step." : "Pick one on the left, or make a new one."}</div>
       {/if}
@@ -727,12 +770,12 @@
     --iron: #9aa0ab;
     --danger: #b3261e;
     --step: #f6c630;
-    --step-surface: #fdf8e7;
+    --step-plane: #fdf8e7;
     --step-deep: #f6e3a1;
     --good: #3f8a3a;
-    --good-surface: #e7f3e4;
+    --good-plane: #e7f3e4;
     --tip: #3b6fd1;
-    --tip-surface: #eef3fb;
+    --tip-plane: #eef3fb;
     --warn-bg: #fdf0df;
     --warn-ink: #a85500;
     --warn-edge: #c46a0a;

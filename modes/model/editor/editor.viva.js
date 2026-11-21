@@ -15,7 +15,7 @@ export const manifest = {
     "renames and retracts; the subject folded on a three.js stage with a gizmo that moves a placement, a set of them or a whole sub-assembly, a box that selects, an undo list, a cursor mode that keeps cursors on holes and faces and mates one piece onto another, and a joint mode that says what " +
     "a fastener holds; and an inspector whose form is the domain's own schematic. The agent works from the dock, through this mode's harness " +
     "and tools; the view holds no conversation. Guides and steps are authored in @assembly/guide/editor.",
-  traits: ["VIEWABLE", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
+  traits: ["SURFACED", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
 };
 
 export const buffer = v.buffer({
@@ -54,6 +54,6 @@ export const buffer = v.buffer({
   },
 });
 
-export const views = [
+export const surfaces = [
   { slug: "assembly", mount: "buffer/Assembly.svelte", mime: mime.dom.svelte },
 ];

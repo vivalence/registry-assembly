@@ -172,6 +172,7 @@ const LINES = v.array(LINE).optional().desc('The numbered body, whole. Example: 
 const IMAGES = v.array(v.string()).optional().desc('File paths, whole. Example: ["manual/cf5a470bc835.webp"]');
 const NOTES = v.array(NOTE).optional().desc('The callouts, whole. Example: [{ text: "Leave it loose.", kind: "WARNING" }]');
 const STAGING = STAGED.optional().desc("How the stage shows it, whole. Example: { explode: 0.4 }");
+const COLOURING = v.union([COLOUR, v.null()]).optional().desc('Its own colour on every stage: a theme role or a hex; null takes it off again. Example: "#e8590c"');
 
 export const VERBS = {
   part: {
@@ -182,6 +183,7 @@ export const VERBS = {
     modeled: MODELED.optional(),
     parametric: GENERATOR.optional(),
     qty: v.integer().optional().desc("How many the kit ships — what makes it a thing you order. Example: 6"),
+    colour: COLOURING,
     symbols: SYMBOLS,
   },
   placement: {
@@ -189,6 +191,7 @@ export const VERBS = {
     label: v.string().optional().desc('A name for eyes, when the placement\'s own name is not one. Example: "Front left motor"'),
     description: DESCRIPTION,
     joins: JOINED.properties.joins.optional(),
+    colour: COLOURING,
     symbols: SYMBOLS,
   },
   step: {

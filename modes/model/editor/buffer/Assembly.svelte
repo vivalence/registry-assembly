@@ -4,14 +4,14 @@
   import { ancestry, chain, free, opening, parent as parentOf, pathOf, reached, rooted, visible } from "./fold.js";
   import { frames } from "./kit/frames.js";
   import { mate, measure } from "./mate.js";
-  import { payload } from "./form.js";
+  import { payload, values } from "./form.js";
   import Tree from "./parts/Tree.svelte";
   import Stage from "./parts/Stage.svelte";
   import Inspector from "./parts/Inspector.svelte";
   import Notice from "./parts/Notice.svelte";
   import Retract from "./parts/Retract.svelte";
 
-  const { terminal, buffer, surface } = $props();
+  const { terminal, buffer, skin } = $props();
   const data = buffer.$data ?? null;
   const files = terminal.client.runtime.entities.file.$entities;
 
@@ -158,6 +158,7 @@
         ...(one.translation && { translation: one.translation }),
         ...(one.rotation && { rotation: one.rotation }),
         ...(one.scale && { scale: one.scale }),
+        ...(one.colour && { colour: one.colour }),
       });
     }
     return [...grouped]
@@ -476,6 +477,11 @@
   const save = async (ontology, draft, was) => {
     const row = await act(ontology, payload(ontology, draft, was));
     if (row) retain({ draft: null, draftOf: null });
+  };
+
+  const coloured = (colour) => {
+    const was = values(card.ontology, card);
+    return act(card.ontology, { ...payload(card.ontology, was, was), colour });
   };
 
   const relocate = async (input) => {
@@ -818,6 +824,7 @@
             move={local.move}
             onstate={(patch, soon) => retain(patch, { soon })}
             onsave={save}
+            oncolour={coloured}
             onmove={relocate}
             onretract={ask} />
         {/if}

@@ -10,6 +10,9 @@
     status = {},
     tints = {},
     labels = {},
+    seats = {},
+    pins = [],
+    asset = (path) => path,
     explode = 0,
     overview = false,
     step = null,
@@ -24,6 +27,7 @@
     onghost = null,
     onexplode = null,
     onfault = () => {},
+    onimage = () => {},
   } = $props();
 
   const ORDER = ["iso", "top", "front", "right", "back", "left", "under"];
@@ -50,6 +54,9 @@
   let host = $state(null);
   let held = $state(null);
   let hover = $state(null);
+  let spots = $state.raw([]);
+  let wide = $state(0);
+  let tall = $state(0);
   let current = $state("step");
   let menu = $state(false);
   let help = $state(false);
@@ -70,6 +77,7 @@
         onPick: (slug, path, event) => onpick(slug, path, event),
         onMarquee: onmarquee,
         onHover: (one) => (hover = one),
+        onPins: (list) => (spots = list),
         onCamera: (elements) => {
           const e = elements;
           const f = [1, -1, 1];
@@ -105,7 +113,7 @@
   });
 
   $effect(() => {
-    const next = { status, tints, labels, explode, overview, step, view, selected, ghost };
+    const next = { status, tints, labels, seats, pins, explode, overview, step, view, selected, ghost };
     const stage = held;
     if (!stage) return;
     untrack(() => (current = "step"));
@@ -129,6 +137,19 @@
   export const snapshot = () => held?.snapshot() ?? null;
   export const frame = (slugs = null) => held?.frame(slugs);
   export const home = () => go("step");
+
+  // a pin's box sits REACH px from its anchor, away from the pane's centre, kept inside the pane
+  const REACH = 104;
+  const within = (value, edge, most) => Math.min(Math.max(value, edge), Math.max(edge, most - edge));
+  const drawn = $derived(
+    spots.flatMap((spot) => {
+      const pin = pins.find((one) => one.id === spot.id);
+      if (!pin) return [];
+      const far = Math.hypot(spot.x - wide / 2, spot.y - tall / 2);
+      const [ux, uy] = far ? [(spot.x - wide / 2) / far, (spot.y - tall / 2) / far] : [0, -1];
+      return [{ ...spot, pin, bx: within(spot.x + ux * REACH, 80, wide), by: within(spot.y + uy * REACH, 28, tall) }];
+    }),
+  );
 
   const press = (event) => {
     if (event.button !== 0) return;
@@ -184,12 +205,34 @@
   };
 </script>
 
-<div class="stage" bind:this={host} onpointerdown={() => ((menu = false), (help = false))}>
+<div class="stage" bind:this={host} bind:clientWidth={wide} bind:clientHeight={tall} onpointerdown={() => ((menu = false), (help = false))}>
   {#if !entries.length}
     <div class="dark">{empty}</div>
   {/if}
   {#if hover}
     <div class="tip" style="left:{hover.x}px;top:{hover.y}px">{hover.label}</div>
+  {/if}
+  {#if drawn.length}
+    <svg class="pin-lines">
+      {#each drawn as one (one.id)}
+        <line x1={one.x} y1={one.y} x2={one.bx} y2={one.by} />
+        <circle cx={one.x} cy={one.y} r="3" />
+      {/each}
+    </svg>
+    {#each drawn as one (one.id)}
+      <div class="pin {one.pin.tone}" style="left:{one.bx}px;top:{one.by}px">
+        <span class="pin-text">{one.pin.text}</span>
+        {#if one.pin.images?.length}
+          <span class="pin-thumbs">
+            {#each one.pin.images as image, k (image)}
+              <button class="pin-thumb" title="Open the picture" onclick={() => onimage(one.pin.images, k)}>
+                <img src={asset(image)} alt="" />
+              </button>
+            {/each}
+          </span>
+        {/if}
+      </div>
+    {/each}
   {/if}
 </div>
 
@@ -272,6 +315,73 @@
     white-space: nowrap;
     transform: translate(12px, -120%);
     z-index: 2;
+  }
+  .pin-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .pin-lines line {
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .pin-lines circle {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 1.2;
+  }
+  .pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px 8px;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 11.5px var(--font-family-body);
+    line-height: 1.35;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .pin.label {
+    white-space: nowrap;
+  }
+  .pin.tip {
+    background: var(--tip-plane);
+    border-color: var(--tip);
+  }
+  .pin.warning {
+    background: var(--warn-bg);
+    border-color: var(--warn-edge);
+    color: var(--warn-ink);
+  }
+  .pin-thumbs {
+    display: flex;
+    gap: 4px;
+  }
+  .pin-thumb {
+    width: 54px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--hair);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: zoom-in;
+    pointer-events: auto;
+    background: var(--paper);
+  }
+  .pin-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .cube-wrap {
     position: absolute;

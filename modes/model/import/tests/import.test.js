@@ -132,10 +132,10 @@ describe("the importer over the assembly rig", () => {
     await Deno.remove(root, { recursive: true }).catch(() => {});
   });
 
-  it("P-manifest: a FILESINK · VIEWABLE · EXPOSED model named import; the buffer carries the queue; four natures", () => {
+  it("P-manifest: a FILESINK · SURFACED · EXPOSED model named import; the buffer carries the queue; four natures", () => {
     expect(mode.manifest.type).toBe("model");
     expect(mode.manifest.slug).toBe("import");
-    expect([...mode.manifest.traits].sort()).toEqual(["EXPOSED", "FILESINK", "VIEWABLE"]);
+    expect([...mode.manifest.traits].sort()).toEqual(["EXPOSED", "FILESINK", "SURFACED"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
     expect(STAGES).toEqual(["sniff", "validate", "decode", "review", "commit"]);
     expect(Object.keys(FORMATS).length).toBe(12);

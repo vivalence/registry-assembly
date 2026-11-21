@@ -27,6 +27,7 @@ export const marks = (row) =>
 const placed = (row) => ({
   ...row.trait.PLACED,
   ...(row.trait.JOINED?.joins && { joins: row.trait.JOINED.joins }),
+  ...(row.trait.STAGED?.colour && { colour: row.trait.STAGED.colour }),
   slug: row.slug,
   symbols: marks(row),
 });
@@ -78,7 +79,12 @@ const composition = (rows, slug, seen = []) => {
     if (row) parts[one.ref] = row.trait ?? {};
     else missing.add(one.ref ?? path(one));
   }
-  const placements = live.map((one) => ({ ...one, path: path(one), children: live.filter((child) => child.parent === path(one)).map(path) }));
+  const placements = live.map((one) => ({
+    ...(parts[one.ref]?.STAGED?.colour && { colour: parts[one.ref].STAGED.colour }),
+    ...one,
+    path: path(one),
+    children: live.filter((child) => child.parent === path(one)).map(path),
+  }));
   return {
     slug,
     placements,

@@ -13,7 +13,7 @@ export const manifest = {
     "The assembly guide as the builder walks it: the subject on a full-bleed stage, the guide's sections in a floating panel with the step " +
     "on screen expanded — the parts it lays out, its numbered lines that point on the stage, its notes, its pictures, its tools — " +
     "Back and Next, a step marked done. Everything the screen holds lives in the buffer.",
-  traits: ["VIEWABLE", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
+  traits: ["SURFACED", "EXPOSED", "HARNESS", "TOOLING", "CONVERSATION"],
 };
 
 export const buffer = v.buffer({
@@ -29,6 +29,6 @@ export const buffer = v.buffer({
   },
 });
 
-export const views = [
+export const surfaces = [
   { slug: "guide", mount: "buffer/Guide.svelte", mime: mime.dom.svelte },
 ];

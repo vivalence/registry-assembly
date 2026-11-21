@@ -107,6 +107,19 @@ export const world = (container, { onCamera = () => {}, onRest = () => {}, onFra
     return line;
   };
 
+  // a placement's seat: its parent's frame times its own TRS. `base` is where explode starts from
+  const seat = (group, at) => {
+    const matrix = new THREE.Matrix4().fromArray(at.parentMatrix ?? IDENTITY);
+    const local = new THREE.Matrix4().compose(
+      new THREE.Vector3().fromArray(numbers(at.translation, 3) ?? [0, 0, 0]),
+      new THREE.Quaternion().fromArray(numbers(at.rotation, 4) ?? [0, 0, 0, 1]),
+      new THREE.Vector3().fromArray(numbers(at.scale, 3) ?? [1, 1, 1]),
+    );
+    matrix.clone().multiply(local).decompose(group.position, group.quaternion, group.scale);
+    group.userData.inverse = matrix.clone().invert();
+    group.userData.base = group.position.clone();
+  };
+
   const mount = (id, built, nodes, malformed) => {
     for (const at of nodes) {
       const group = new THREE.Group();
@@ -115,7 +128,8 @@ export const world = (container, { onCamera = () => {}, onRest = () => {}, onFra
         if (!child.isMesh) return;
         child.material = Array.isArray(child.material) ? child.material.map((one) => one.clone()) : child.material.clone();
         for (const material of [].concat(child.material)) {
-          material.userData.colour = material.color?.clone() ?? new THREE.Color("white");
+          const filed = material.color?.clone() ?? new THREE.Color("white");
+          material.userData.colour = at.colour ? palette.tint(at.colour) : filed;
           material.userData.emissive = material.emissive?.clone() ?? new THREE.Color("black");
         }
         child.userData.slug = at.slug;
@@ -124,17 +138,12 @@ export const world = (container, { onCamera = () => {}, onRest = () => {}, onFra
         child.add(new THREE.LineSegments(new THREE.EdgesGeometry(child.geometry, 28), edged(child.material)));
       });
       group.add(body);
-      const matrix = new THREE.Matrix4().fromArray(at.parentMatrix ?? IDENTITY);
-      const translation = numbers(at.translation, 3) ?? [0, 0, 0];
-      const rotation = numbers(at.rotation, 4) ?? [0, 0, 0, 1];
-      const scale = numbers(at.scale, 3) ?? [1, 1, 1];
       if (at.translation && !numbers(at.translation, 3)) malformed.push(`${at.path} translation ${JSON.stringify(at.translation)}`);
       if (at.rotation && !numbers(at.rotation, 4)) malformed.push(`${at.path} rotation ${JSON.stringify(at.rotation)}`);
       if (at.scale && !numbers(at.scale, 3)) malformed.push(`${at.path} scale ${JSON.stringify(at.scale)}`);
-      const local = new THREE.Matrix4().compose(new THREE.Vector3().fromArray(translation), new THREE.Quaternion().fromArray(rotation), new THREE.Vector3().fromArray(scale));
-      group.applyMatrix4(matrix.clone().multiply(local));
       group.name = at.path ?? id;
-      group.userData = { slug: at.slug, path: at.path, ref: id, active: at.active, inverse: matrix.clone().invert(), base: group.position.clone() };
+      group.userData = { slug: at.slug, path: at.path, ref: id, active: at.active };
+      seat(group, at);
       scene.add(group);
       groups.set(at.path, group);
     }
@@ -380,6 +389,7 @@ export const world = (container, { onCamera = () => {}, onRest = () => {}, onFra
     touch,
     load,
     raise,
+    seat,
     dress,
     spread,
     pose,
@@ -394,8 +404,8 @@ export const world = (container, { onCamera = () => {}, onRest = () => {}, onFra
   };
 };
 
-export const stage = (container, { onPick = () => {}, onMarquee = null, onHover = () => {}, onCamera = () => {}, onFault = () => {}, select = false } = {}) => {
-  let S = { status: {}, tints: {}, labels: {}, selected: new Set(), explode: 0, overview: false, step: null, view: "iso", ghost: false };
+export const stage = (container, { onPick = () => {}, onMarquee = null, onHover = () => {}, onCamera = () => {}, onFault = () => {}, onPins = () => {}, select = false } = {}) => {
+  let S = { status: {}, tints: {}, labels: {}, seats: {}, pins: [], selected: new Set(), explode: 0, overview: false, step: null, view: "iso", ghost: false };
   let hovered = null;
   let settle = null;
   let generation = 0;
@@ -407,7 +417,13 @@ export const stage = (container, { onPick = () => {}, onMarquee = null, onHover 
     if (settle.t >= 1) settle = null;
     paint();
   };
-  const made = world(container, { onCamera, onFrame: settling });
+  const made = world(container, {
+    onCamera: (elements) => {
+      onCamera(elements);
+      onPins(spots());
+    },
+    onFrame: settling,
+  });
   const { groups, camera, renderer } = made;
 
   const explodeOf = (status) => (settle && status === "fresh" ? S.explode + (1 - S.explode) * (1 - ease(settle.t)) : S.explode);
@@ -417,9 +433,29 @@ export const stage = (container, { onPick = () => {}, onMarquee = null, onHover 
       const slug = group.userData.slug;
       const status = S.status[slug] ?? "hidden";
       made.dress(group, { status, picked: S.selected.has(slug), hover: hovered === group.userData.path, tint: S.tints[slug] ?? null });
+      if (S.seats[group.userData.path]) made.seat(group, S.seats[group.userData.path]);
       made.spread(group, explodeOf(status));
     }
     made.touch();
+  };
+
+  // where each pin's anchor falls on the pane: the centre of the pieces it names plus its offset, or its
+  // fixed point. a pin none of whose pieces is drawn, or behind the camera, has no spot
+  const spots = () => {
+    const { width, height } = container.getBoundingClientRect();
+    return S.pins.flatMap((pin) => {
+      const box = new THREE.Box3();
+      for (const group of groups.values()) {
+        if (group.visible && pin.literals.includes(group.userData.slug)) box.expandByObject(group);
+      }
+      if (!pin.position && box.isEmpty()) return [];
+      const at = pin.position
+        ? new THREE.Vector3().fromArray(pin.position)
+        : box.getCenter(new THREE.Vector3()).add(new THREE.Vector3().fromArray(pin.offset ?? [0, 0, 0]));
+      const c = at.project(camera);
+      if (c.z >= 1) return [];
+      return [{ id: pin.id, x: ((c.x + 1) / 2) * width, y: ((1 - c.y) / 2) * height }];
+    });
   };
 
   const view = (name) => made.go(made.pose(name === "step" || name == null ? S.view : name, S.overview));
@@ -541,7 +577,7 @@ export const stage = (container, { onPick = () => {}, onMarquee = null, onHover 
     if (malformed.length) onFault(`the stage was handed a TRS it cannot use — ${malformed.join(" · ")}`);
   };
 
-  // what the screen says about the placements — status, tints, labels, explode, the step's view
+  // what the screen says about the placements — status, tints, labels, seats, pins, explode, the step's view
   const update = (next) => {
     const stepped = next.step !== last.step;
     const fresh = Object.values(next.status ?? {}).some((one) => one === "fresh");

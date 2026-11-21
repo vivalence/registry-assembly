@@ -93,7 +93,12 @@ export const PLACED = traits.define("PLACED", {
       return { name: name ?? was.name ?? slug, ...((description ?? was.description) != null && { description: description ?? was.description }) };
     },
 
-    async placement({ label, description, joins, symbols, ...placed }, mode) {
+    coloured(held, colour) {
+      const { colour: _was, ...rest } = held?.trait?.STAGED ?? {};
+      return { ...rest, ...(colour && { colour }) };
+    },
+
+    async placement({ label, description, joins, symbols, colour, ...placed }, mode) {
       checked(shapes.PLACED, placed, "PLACED");
       const layer = await this.named(placed.layer);
       if (!ONTOLOGIES[layer.ontology]?.layer) throw new Error(`[assembly] cannot place into "${layer.slug}" — a ${layer.ontology} is not a layer`);
@@ -110,6 +115,7 @@ export const PLACED = traits.define("PLACED", {
         trait.LABELED = this.labeled(held, placed.name, label, description);
       }
       if (joins) (carried.push("JOINED"), (trait.JOINED = { joins }));
+      if (colour !== undefined) (carried.push("STAGED"), (trait.STAGED = this.coloured(held, colour)));
       const row = await this.over("placement", slug, carried, trait, symbols, mode);
       await this.uses(row);
       await this.em.flush();

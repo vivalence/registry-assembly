@@ -57,10 +57,10 @@ describe("the guide editor over the assembly rig", { sanitizeResources: false, s
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESS · TOOLING · CONVERSATION guide named editor; a buffer that opens nothing", () => {
+  it("P-manifest: a SURFACED · EXPOSED · HARNESS · TOOLING · CONVERSATION guide named editor; a buffer that opens nothing", () => {
     expect(mode.manifest.type).toBe("guide");
     expect(mode.manifest.slug).toBe("editor");
-    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "TOOLING", "VIEWABLE"]);
+    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "SURFACED", "TOOLING"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
   });
 

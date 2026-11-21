@@ -1,10 +1,10 @@
 <script>
   import { onMount, untrack } from "svelte";
   import Stage from "./kit/Stage.svelte";
-  import { entries as entriesOf } from "./kit/frames.js";
-  import { anchored, chips as chipsOf, installs, kit as kitOf, pad, sections as sectionsOf, statuses, tints as tintsOf } from "./kit/guide.js";
+  import { entries as entriesOf, seats as seatsOf } from "./kit/frames.js";
+  import { anchored, chips as chipsOf, installs, kit as kitOf, pad, pins as pinsOf, posed, sections as sectionsOf, staged as saidOf, statuses, tints as tintsOf, tone } from "./kit/guide.js";
 
-  const { terminal, buffer, surface } = $props();
+  const { terminal, buffer, skin } = $props();
   const data = buffer.$data ?? null;
   const files = terminal.client.runtime.entities.file.$entities;
 
@@ -113,6 +113,9 @@
   const fresh = $derived(current ? installs(current) : []);
   const status = $derived(statuses(fold, steps, step, { ghost }));
   const tints = $derived(tintsOf(steps, step, fold));
+  const said = $derived(saidOf(steps, step, fold));
+  const seats = $derived(fold ? seatsOf(posed(fold, said)) : {});
+  const pins = $derived(fold ? pinsOf(steps, step, fold, body?.notes) : []);
   const labels = $derived.by(() => {
     const out = {};
     for (const one of fold?.placements ?? []) out[one.slug] = `${parts[one.ref]?.name ?? one.ref}${one.at != null ? ` · step ${pad(one.at + 1)}` : " · not in the guide"}`;
@@ -237,7 +240,6 @@
     retain({ lightbox: { ...box, k: (box.k + delta + box.list.length) % box.list.length } });
   };
 
-  const kindClass = (note) => (note.kind === "TIP" ? "tip" : note.kind ? "warning" : "plain");
 
   const material = (chip) => (chip.material ? `var(--material-${chip.material.slice(chip.material.indexOf(".") + 1)}, var(--iron))` : "var(--iron)");
 
@@ -292,7 +294,7 @@
       <button class="line" class:on={focused?.ids.includes(`t${k}`)} title="Show in 3D" onclick={(event) => frameLine(`t${k}`, anchored(line.at, step > 0 ? fresh : []), event)}><span class="n">{body.lines.length > 1 ? k + 1 : ""}</span><span>{line.text}</span></button>
     {/each}
     {#each body.notes as note, k (k)}
-      <div class="note {kindClass(note)}">{#if kindClass(note) === "tip"}<b>Tip · </b>{/if}{note.text}</div>
+      <div class="note {tone(note)}">{#if tone(note) === "tip"}<b>Tip · </b>{/if}{note.text}</div>
     {/each}
     {#if body.images.length}
       <div class="images">
@@ -370,6 +372,10 @@
       {status}
       {tints}
       {labels}
+      {seats}
+      {pins}
+      {asset}
+      onimage={openBox}
       {explode}
       {overview}
       {step}
@@ -491,12 +497,12 @@
     --iron: #9aa0ab;
     --danger: #b3261e;
     --step: #f6c630;
-    --step-surface: #fdf8e7;
+    --step-plane: #fdf8e7;
     --step-deep: #f6e3a1;
     --good: #3f8a3a;
-    --good-surface: #e7f3e4;
+    --good-plane: #e7f3e4;
     --tip: #3b6fd1;
-    --tip-surface: #eef3fb;
+    --tip-plane: #eef3fb;
     --warn-bg: #fdf0df;
     --warn-ink: #a85500;
     --warn-edge: #c46a0a;
@@ -668,7 +674,7 @@
     padding: 14px 20px 4px;
   }
   .active {
-    background: var(--step-surface);
+    background: var(--step-plane);
     border-left: 3px solid var(--step);
     padding: 12px 18px 16px 17px;
   }
@@ -751,7 +757,7 @@
     cursor: pointer;
   }
   .line:hover {
-    background: var(--step-surface);
+    background: var(--step-plane);
   }
   .line.on {
     background: var(--step-deep);
@@ -773,7 +779,7 @@
     color: var(--ink-2);
   }
   .note.tip {
-    background: var(--tip-surface);
+    background: var(--tip-plane);
     border-left-color: var(--tip);
     color: var(--ink);
   }
@@ -860,7 +866,7 @@
     gap: 8px;
   }
   .done.is {
-    background: var(--good-surface);
+    background: var(--good-plane);
     color: var(--good);
   }
   .idle {
@@ -1011,7 +1017,7 @@
     padding: 9px 20px;
   }
   .idle.current {
-    background: var(--step-surface);
+    background: var(--step-plane);
     border-left: 3px solid var(--step);
     padding-left: 17px;
   }

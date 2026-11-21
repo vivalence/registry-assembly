@@ -58,6 +58,23 @@ export const frames = (placements) => {
   return out;
 };
 
+// one placement as the stage seats it: the parent frame it composes, its own TRS, its colour
+const node = (one, parents) => ({
+  path: one.path,
+  slug: one.slug,
+  parentMatrix: parents.get(one.path),
+  ...(one.translation && { translation: one.translation }),
+  ...(one.rotation && { rotation: one.rotation }),
+  ...(one.scale && { scale: one.scale }),
+  ...(one.colour && { colour: one.colour }),
+});
+
+// every placement of a fold as the stage seats it, by path — what a step that poses a piece re-seats from
+export const seats = (fold) => {
+  const parents = frames(fold.placements);
+  return Object.fromEntries(fold.placements.map((one) => [one.path, node(one, parents)]));
+};
+
 // what the stage draws for a fold: one entry per part with its GLB (or generated json), one node
 // per placement of it with the parent frame the node composes
 export const entries = (fold, { asset = () => null, geometry = {} } = {}) => {
@@ -66,14 +83,7 @@ export const entries = (fold, { asset = () => null, geometry = {} } = {}) => {
   const grouped = new Map();
   for (const one of fold.placements) {
     if (!grouped.has(one.ref)) grouped.set(one.ref, []);
-    grouped.get(one.ref).push({
-      path: one.path,
-      slug: one.slug,
-      parentMatrix: parents.get(one.path),
-      ...(one.translation && { translation: one.translation }),
-      ...(one.rotation && { rotation: one.rotation }),
-      ...(one.scale && { scale: one.scale }),
-    });
+    grouped.get(one.ref).push(node(one, parents));
   }
   return [...grouped]
     .map(([slug, nodes]) => ({ id: slug, url: asset(fold.parts[slug]?.MODELED?.file), json: geometry[slug] ?? null, nodes }))

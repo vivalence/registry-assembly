@@ -5,7 +5,7 @@ import { renderView } from "../../../../tests/render.js";
 import { aperture, models, vocabulary } from "../aperture/index.js";
 import { harness, ontology, screen, vocabulary as spoken } from "../harness.js";
 import { tools } from "../tools/index.js";
-import { IDENTITY, at, exampleOf, fields, into, payload, read, show, values } from "../buffer/form.js";
+import { IDENTITY, at, exampleOf, fields, into, payload, read, rolesOf, show, values } from "../buffer/form.js";
 import { chain, free, opening, parent, rooted, visible } from "../buffer/fold.js";
 import { IDENTITY as ORIGIN, frames } from "../buffer/kit/frames.js";
 import * as mode from "../editor.viva.js";
@@ -16,6 +16,12 @@ const { describe, it, expect, beforeAll, afterAll } = specimen;
 const VIEW = new URL("../buffer/Assembly.svelte", import.meta.url).pathname;
 
 describe("the form — drawn from the domain's schematic, pure", () => {
+  it("P-roles: a colour field offers the theme roles inside its union, at any depth; a field of no enum offers none", () => {
+    const colour = { anyOf: [{ anyOf: [{ enum: ["info", "warning"] }, { type: "string", pattern: "^#[0-9a-f]{6}$" }] }, { type: "null" }] };
+    expect(rolesOf(colour)).toEqual(["info", "warning"]);
+    expect(rolesOf({ type: "string" })).toEqual([]);
+  });
+
   it("P-fields: one field per key of the verb's schema, its kind from the JSON schema, its example from the description", () => {
     const schema = {
       type: "object",
@@ -86,12 +92,12 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
   });
   afterAll(async () => rig?.close());
 
-  it("P-manifest: an VIEWABLE · EXPOSED · HARNESS · TOOLING · CONVERSATION model named editor; a buffer that opens nothing", () => {
+  it("P-manifest: a SURFACED · EXPOSED · HARNESS · TOOLING · CONVERSATION model named editor; a buffer that opens nothing", () => {
     expect(mode.manifest.type).toBe("model");
     expect(mode.manifest.slug).toBe("editor");
-    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "TOOLING", "VIEWABLE"]);
+    expect([...mode.manifest.traits].sort()).toEqual(["CONVERSATION", "EXPOSED", "HARNESS", "SURFACED", "TOOLING"]);
     expect(mode.buffer.fill({ data: {} }).data).toEqual({});
-    expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "views"]));
+    expect(Object.keys(mode)).toEqual(expect.arrayContaining(["aperture", "harness", "tools", "manifest", "buffer", "surfaces"]));
   });
 
   it("P-schematics: the domain's shapes come over the wire as JSON schema — every ontology, every trait, every verb", async () => {
@@ -101,7 +107,7 @@ describe("the editor over the assembly rig", { sanitizeResources: false, sanitiz
     expect(Object.keys(shapes.TRAITS).sort()).toEqual(["ANNOTATED", "ASSEMBLED", "COUNTED", "INSTRUCTED", "JOINED", "LABELED", "MODELED", "PARAMETRIC", "PLACED", "PREPARED", "SEQUENCED", "SOURCED", "STAGED"]);
     expect(Object.keys(shapes.VERBS).sort()).toEqual(["duplicate", "fold", "guide", "move", "part", "placement", "rename", "retract", "sequence", "step", "tree"]);
     expect(shapes.VERBS.placement.type).toBe("object");
-    expect(fields(shapes.VERBS.placement).map((field) => field.key)).toEqual(["layer", "name", "parent", "ref", "translation", "rotation", "scale", "active", "params", "label", "description", "joins", "symbols"]);
+    expect(fields(shapes.VERBS.placement).map((field) => field.key)).toEqual(["layer", "name", "parent", "ref", "translation", "rotation", "scale", "active", "params", "label", "description", "joins", "colour", "symbols"]);
     expect(fields(shapes.VERBS.placement).find((field) => field.key === "translation")).toMatchObject({ kind: "vector", length: 3 });
     expect(JSON.stringify(shapes).length).toBeGreaterThan(1000);
   });

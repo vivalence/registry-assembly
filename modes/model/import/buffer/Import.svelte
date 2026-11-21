@@ -9,7 +9,7 @@
   import Tree from "./parts/Tree.svelte";
   import Node from "./parts/Node.svelte";
 
-  const { terminal, buffer, surface } = $props();
+  const { terminal, buffer, skin } = $props();
   const recorded = terminal.client.runtime.entities.file.$entities;
 
   const FONT = "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap";

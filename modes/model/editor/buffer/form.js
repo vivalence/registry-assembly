@@ -4,6 +4,9 @@ export const exampleOf = (description = "") => (description.match(/Example:\s*([
 
 export const optionsOf = (held) => held.enum ?? (Array.isArray(held.anyOf) && held.anyOf.length && held.anyOf.every((one) => "const" in one) ? held.anyOf.map((one) => one.const) : null);
 
+// the theme roles a colour field offers: every enum inside its union
+export const rolesOf = (held) => optionsOf(held) ?? (held.anyOf ?? []).flatMap(rolesOf);
+
 const kindOf = (held) => {
   if (optionsOf(held)) return "enum";
   if (held.type === "boolean") return "flag";
