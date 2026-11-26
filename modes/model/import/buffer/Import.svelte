@@ -10,7 +10,7 @@
   import Node from "./parts/Node.svelte";
 
   const { terminal, buffer, skin } = $props();
-  const recorded = terminal.client.runtime.entities.file.$entities;
+  const recorded = buffer.mode.daemon.$files;
 
   const FONT = "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap";
   const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
@@ -40,7 +40,7 @@
 
   const asset = (path) =>
     path
-      ? ($recorded.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
+      ? ($recorded.find((file) => file.path === path)?.url ?? null)
       : null;
   const fresh = (url, stamp) => (url ? `${url}${url.includes("?") ? "&" : "?"}job=${stamp}` : null);
 

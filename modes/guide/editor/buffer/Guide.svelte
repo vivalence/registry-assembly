@@ -11,7 +11,7 @@
 
   const { terminal, buffer, skin } = $props();
   const data = buffer.$data ?? null;
-  const files = terminal.client.runtime.entities.file.$entities;
+  const files = buffer.mode.daemon.$files;
 
   const SCREEN = { guide: null, step: 0, tab: "guide", insp: true, sel: [], scopeF: "step", scopeQ: "", open: {}, subjOpen: false, subjQ: "", picker: false, lb: null, ghost: true, explode: 0, view: null, draft: null, editing: null, slugDraft: null, tints: null, preQ: "" };
   const screened = (held = {}) => ({ ...SCREEN, ...held, open: { ...(held.open ?? {}) } });
@@ -60,7 +60,7 @@
   const call = (route, input = {}) => buffer.mode.connection.call(`/${route}`, input);
   const asset = (path) =>
     path
-      ? ($files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
+      ? ($files.find((file) => file.path === path)?.url ?? null)
       : null;
 
   async function refresh() {
@@ -503,7 +503,6 @@
   );
   const pages = $derived(
     $files
-      .filter((file) => file.mode.daemon === buffer.mode.daemon)
       .map((file) => file.path)
       .filter((path) => path.startsWith("manual/"))
       .sort(),

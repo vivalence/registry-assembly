@@ -6,7 +6,7 @@
 
   const { terminal, buffer, skin } = $props();
   const data = buffer.$data ?? null;
-  const files = terminal.client.runtime.entities.file.$entities;
+  const files = buffer.mode.daemon.$files;
 
   const SCREEN = { guide: null, step: 0, done: [], explode: 0, ghost: false, view: null, focus: null, lightbox: null };
   const screened = (held = {}) => ({ ...SCREEN, ...held });
@@ -54,7 +54,7 @@
 
   const asset = (path) =>
     path
-      ? ($files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
+      ? ($files.find((file) => file.path === path)?.url ?? null)
       : null;
 
   async function refresh() {
